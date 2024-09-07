@@ -75,7 +75,7 @@ const AddEditItem = () => {
 
     const fetchItemDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8070/api/items/${id}`);
+            const response = await axios.get(`https://xperia-backend.vercel.app/api/items/${id}`);
             setItem(response.data);
             setIsEdit(true);
         } catch (error) {
@@ -104,10 +104,10 @@ const AddEditItem = () => {
 
         try {
             if (isEdit) {
-                await axios.put(`http://localhost:8070/api/items/${id}`, item);
+                await axios.put(`https://xperia-backend.vercel.app/api/items/${id}`, item);
                 toast.success("Item updated successfully");
             } else {
-                await axios.post("http://localhost:8070/api/items", item);
+                await axios.post("https://xperia-backend.vercel.app/api/items", item);
                 toast.success("Item added successfully");
             }
             navigate(-1);

@@ -16,7 +16,9 @@ import {
     FormControlLabel,
     Radio,
     IconButton,
-    Autocomplete,
+    InputLabel,
+    Select,
+    MenuItem,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -38,10 +40,12 @@ import {
     Cancel,
     SaveAlt,
     Save,
+    Person2,
 } from "@mui/icons-material";
 import theme from "../theme/Theme";
 
 const AddEditStaff = () => {
+    const roles = ["admin", "staff"];
     const id = localStorage.getItem("editId");
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
@@ -53,7 +57,7 @@ const AddEditStaff = () => {
         phoneNumber: "",
         emailAddress: "",
         address: "",
-        departmentID: "",
+        role: "",
         password: "",
         hireDate: "",
     });
@@ -68,7 +72,6 @@ const AddEditStaff = () => {
             fetchStaffDetails(id);
             setIsEdit(true);
         }
-        fetchDepartments();
     }, [id]);
 
     const fetchStaffDetails = async (staffId) => {
@@ -87,16 +90,6 @@ const AddEditStaff = () => {
         }
     };
 
-    const fetchDepartments = async () => {
-        try {
-            const res = await axios.get("http://localhost:8070/api/departments");
-            setDepartments(res.data);
-        } catch (error) {
-            enqueueSnackbar(error.response.data.message, {
-                variant: "error",
-            });
-        }
-    };
 
     const validate = () => {
         let tempErrors = {};
@@ -178,6 +171,11 @@ const AddEditStaff = () => {
                     tempErrors.address = 'Address is required';
                 }
                 break;
+            case 'role':
+                if (!value) {
+                    tempErrors.address = 'Role is required';
+                }
+                break;
             case 'password':
                 if (!value) {
                     tempErrors.password = 'Password is required';
@@ -194,10 +192,6 @@ const AddEditStaff = () => {
         setErrors(tempErrors);
     };
 
-    const handleDepartmentChange = (event, value) => {
-        setStaff({ ...staff, departmentID: value ? value._id : "" });
-        setSelectedDepartment(value);
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -215,7 +209,7 @@ const AddEditStaff = () => {
                     variant: "success",
                 });
             }
-            navigate("/staff");
+            navigate(-1);
         } catch (error) {
             enqueueSnackbar(error.response.data.message, {
                 variant: "error",
@@ -422,7 +416,7 @@ const AddEditStaff = () => {
                                             name="address"
                                             onChange={handleInputChange}
                                             required
-                                             error={!!errors.address}
+                                            error={!!errors.address}
                                             value={staff.address}
                                             variant="outlined"
                                             InputProps={{
@@ -435,30 +429,30 @@ const AddEditStaff = () => {
                                         />
                                     </Grid>
                                     <Grid item md={6} xs={12}>
-                                        <Autocomplete 
-                                            options={departments}
-                                            getOptionLabel={(option) => option.departmentName || ""}
-                                            onChange={handleDepartmentChange}
-                                            value={departments.find(member => member._id === staff.departmentID) || null}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="Department"
-                                                    name="departmentID"
-                                                    variant="outlined"
-                                                    required
-                                                    error={!!errors.departmentID}
-                                                    InputProps={{
-                                                        ...params.InputProps,
-                                                        startAdornment: (
-                                                            <InputAdornment position="start">
-                                                                <Work />
-                                                            </InputAdornment>
-                                                        ),
-                                                    }}
-                                                />
-                                            )}
-                                        />
+                                        <label style={{ marginBottom: '10px' }}>Role</label>
+                                        <FormControl fullWidth required variant="outlined">
+                                            <Select
+                                                name="role"
+                                                value={staff.role}
+                                                onChange={handleInputChange}
+                                                label="Role"
+                                                error={!!errors.role}
+                                                helperText={errors.role}
+                                                InputProps={{
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <Person2 />
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
+                                            >
+                                                {roles.map((role) => (
+                                                    <MenuItem key={role} value={role} selected={staff.role == role ? true : false}>
+                                                        {role}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
                                     </Grid>
                                     <Grid item md={6} xs={12}>
                                         <TextField

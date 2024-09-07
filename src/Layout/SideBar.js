@@ -9,6 +9,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import Logo from '../assets/logo.png';
 import theme from '../theme/Theme';
 import { useNavigate } from 'react-router-dom';
+import { HomeRepairService, Person3 } from '@mui/icons-material';
 
 const SideBar = () => {
     const user = JSON.parse(localStorage.getItem('staff'))
@@ -44,9 +45,10 @@ const SideBar = () => {
                 <img src={Logo} height={'180px'} width={'260px'} />
                 
             </div> 
+            <NavItem name="Dashboard" path="/" icon={<DashboardIcon />} />
             <NavItem name="Items" path="/item" icon={<ConfirmationNumberIcon />} />
-            <NavItem name="Repairs" path="/repair" icon={<ConfirmationNumberIcon />} />
-            <NavItem name="Staff" path="/staff" icon={<ConfirmationNumberIcon />} />
+            <NavItem name="Repairs" path="/repair" icon={<HomeRepairService />} />
+            <NavItem name="Staff" path="/staff" icon={<Person3 />} />
             <Button
                 variant='text'
                 sx={{

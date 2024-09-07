@@ -53,7 +53,7 @@ const ItemList = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://localhost:8070/api/items");
+                const response = await axios.get("https://xperia-backend.vercel.app/api/items");
                 setData(response.data);
                 console.log(response.data);
             } catch (error) {
@@ -96,7 +96,7 @@ const ItemList = () => {
                     label: 'Yes',
                     onClick: async () => {
                         try {
-                            await axios.delete(`http://localhost:8070/api/items/${id}`);
+                            await axios.delete(`https://xperia-backend.vercel.app/api/items/${id}`);
                             toast.success("Item deleted successfully");
                             setData(prevData => prevData.filter(item => item._id !== id));
                         } catch (error) {

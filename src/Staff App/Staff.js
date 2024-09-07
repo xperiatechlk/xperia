@@ -43,44 +43,9 @@ const columns = [
         header: "Phone Number",
         size: 150,
     }),
-    columnHelper.accessor("departmentID", {
-        header: "Department",
+    columnHelper.accessor("role", {
+        header: "Role",
         size: 150,
-        Cell: ({ cell }) => {
-            const [departmentName, setDepartmentName] = useState(null);
-            const navigate = useNavigate();
-
-            useEffect(() => {
-                const fetchDepartmentName = async () => {
-                    try {
-                        const response = await axios.get(`http://localhost:8070/api/departments/${cell.getValue()}`);
-                        setDepartmentName(response.data.departmentName);
-                    } catch (error) {
-                        console.error("Error fetching department name:", error);
-                    }
-                };
-                fetchDepartmentName();
-            }, [cell]);
-
-            const handleDepartmentClick = () => {
-                navigate('/viewDepartment')
-                localStorage.setItem("viewId", cell.getValue())
-            };
-            return (
-                <Button onClick={handleDepartmentClick} variant="text"
-                    sx={{
-                        borderRadius: '0px',
-                        '&:hover': {
-                            borderBottom: '1px solid',
-                            borderColor: theme.palette.primary.main,
-                            boxShadow: 'none',
-                        }
-                    }}
-                >
-                    {departmentName || "Loading..."}
-                </Button>
-            );
-        },
     }),
 ];
 
@@ -255,7 +220,7 @@ const StaffApp = () => {
                 <ThemeProvider theme={tableTheme}>
                     <MaterialReactTable table={table} />
                 </ThemeProvider>
-        </Card >
+            </Card >
         </div>
     );
 };
