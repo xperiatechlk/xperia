@@ -31,14 +31,29 @@ const columns = [
     columnHelper.accessor("quantity", {
         header: "Quantity",
         size: 100,
+        Cell: ({ cell }) => {
+            return (
+                <div style={{ color: cell.getValue() < 5 && '#ff0000' }}>{cell.getValue()}</div>
+            );
+        },
     }),
     columnHelper.accessor("unitPrice", {
         header: "Unit Price",
         size: 100,
+        Cell: ({ cell }) => {
+            return (
+                <div>Rs. {cell.getValue()}.00</div>
+            );
+        },
     }),
     columnHelper.accessor("sellingPrice", {
         header: "Selling Price",
         size: 120,
+        Cell: ({ cell }) => {
+            return (
+                <div>Rs. {cell.getValue()}.00</div>
+            );
+        },
     }),
     columnHelper.accessor("description", {
         header: "Description",
@@ -53,7 +68,7 @@ const ItemList = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("https://xperia-backend.vercel.app/api/items");
+                const response = await axios.get("http://localhost:8070/api/items");
                 setData(response.data);
                 console.log(response.data);
             } catch (error) {
@@ -96,7 +111,7 @@ const ItemList = () => {
                     label: 'Yes',
                     onClick: async () => {
                         try {
-                            await axios.delete(`https://xperia-backend.vercel.app/api/items/${id}`);
+                            await axios.delete(`http://localhost:8070/api/items/${id}`);
                             toast.success("Item deleted successfully");
                             setData(prevData => prevData.filter(item => item._id !== id));
                         } catch (error) {

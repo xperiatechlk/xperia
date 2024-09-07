@@ -52,6 +52,42 @@ const AddEditItem = () => {
         }
     }, [id]);
 
+    const fetchItemDetails = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8070/api/items/${id}`);
+            setItem(response.data);
+            setIsEdit(true);
+        } catch (error) {
+            console.error("Error fetching item details:", error);
+            toast.error("Error fetching item details");
+        }
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        let errorMsg = '';
+
+        // Regex validation
+        if (name === 'itemName' && !/^[a-zA-Z0-9 ]{2,100}$/.test(value)) {
+            errorMsg = "Item Name should be 2-100 characters long.";
+        }
+        if (name === 'quantity' && (isNaN(value) || value <= 0)) {
+            errorMsg = "Quantity must be a valid number greater than 0.";
+        }
+        if (name === 'unitPrice' && (isNaN(value) || value <= 0)) {
+            errorMsg = "Unit Price must be a valid number greater than 0.";
+        }
+        if (name === 'sellingPrice' && (isNaN(value) || value <= 0)) {
+            errorMsg = "Selling Price must be a valid number greater than 0.";
+        }
+        if (name === 'category' && value.trim() === '') {
+            errorMsg = "Category is required.";
+        }
+
+        setItem({ ...item, [name]: value });
+        setErrors({ ...errors, [name]: errorMsg });
+    };
+
     const validateInputs = () => {
         let tempErrors = {};
         if (!/^[a-zA-Z0-9 ]{2,100}$/.test(item.itemName)) {
@@ -73,28 +109,6 @@ const AddEditItem = () => {
         return Object.keys(tempErrors).length === 0;
     };
 
-    const fetchItemDetails = async () => {
-        try {
-            const response = await axios.get(`https://xperia-backend.vercel.app/api/items/${id}`);
-            setItem(response.data);
-            setIsEdit(true);
-        } catch (error) {
-            console.error("Error fetching item details:", error);
-            toast.error("Error fetching item details");
-        }
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setItem({ ...item, [name]: value });
-        setErrors({ ...errors, [name]: "" });
-    };
-
-    const goBack = () => {
-        localStorage.removeItem('editId');
-        navigate(-1);
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateInputs()) {
@@ -104,10 +118,10 @@ const AddEditItem = () => {
 
         try {
             if (isEdit) {
-                await axios.put(`https://xperia-backend.vercel.app/api/items/${id}`, item);
+                await axios.put(`http://localhost:8070/api/items/${id}`, item);
                 toast.success("Item updated successfully");
             } else {
-                await axios.post("https://xperia-backend.vercel.app/api/items", item);
+                await axios.post("http://localhost:8070/api/items", item);
                 toast.success("Item added successfully");
             }
             navigate(-1);
@@ -116,6 +130,11 @@ const AddEditItem = () => {
             console.error("API error:", error);
             toast.error(error.response?.data?.message || "Failed to save item");
         }
+    };
+
+    const goBack = () => {
+        localStorage.removeItem('editId');
+        navigate(-1);
     };
 
     return (
@@ -295,6 +314,8 @@ const AddEditItem = () => {
                                     type="submit"
                                     variant="contained"
                                     startIcon={isEdit ? <SaveAlt /> : <Save />}
+
+
                                     sx={{ height: "30px", width: "100px" }}
                                 >
                                     {isEdit ? "Update" : "Save"}

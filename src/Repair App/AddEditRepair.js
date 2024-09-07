@@ -28,10 +28,10 @@ import {
     Cancel,
     SaveAlt,
     Save,
-    DeviceHub,
     Person
 } from "@mui/icons-material";
 import theme from "../theme/Theme";
+import moment from 'moment';
 
 const statuses = ["Pending", "Done", "Delivered"];
 
@@ -39,7 +39,7 @@ const AddEditRepair = () => {
     const id = localStorage.getItem("editId");
     const navigate = useNavigate();
     const [repair, setRepair] = useState({
-        date: "",
+        date: new moment().format('YYYY-MM-DD'),
         name: "",
         deviceType: "",
         fault: "",
@@ -64,28 +64,57 @@ const AddEditRepair = () => {
         }
     }, [id]);
 
-    const validateInputs = () => {
-        let tempErrors = {};
-        if (!/^[a-zA-Z ]{2,100}$/.test(repair.name)) {
-            tempErrors.name = "Name should be 2-100 characters long.";
+    const validateField = (name, value) => {
+        let errorMsg = "";
+        switch (name) {
+            case "name":
+                if (!/^[a-zA-Z ]{2,100}$/.test(value)) {
+                    errorMsg = "Name should be 2-100 characters long.";
+                }
+                break;
+            case "deviceType":
+                if (!value.trim()) {
+                    errorMsg = "Device Type is required.";
+                }
+                break;
+            case "fault":
+                if (!value.trim()) {
+                    errorMsg = "Fault description is required.";
+                }
+                break;
+            case "contactNumber":
+                if (!/^\d{10}$/.test(value)) {
+                    errorMsg = "Contact Number must be 10 digits.";
+                }
+                break;
+            case "price":
+                if (value <= 0) {
+                    errorMsg = "Price must be greater than 0.";
+                }
+                break;
+            case "date":
+                if (!value) {
+                    errorMsg = "Date is required.";
+                }
+                break;
+            default:
+                break;
         }
-        if (!repair.deviceType.trim()) {
-            tempErrors.deviceType = "Device Type is required.";
-        }
-        if (!repair.fault.trim()) {
-            tempErrors.fault = "Fault description is required.";
-        }
-        if (!/^\d{10}$/.test(repair.contactNumber)) {
-            tempErrors.contactNumber = "Contact Number must be 10 digits.";
-        }
-        if (repair.price <= 0) {
-            tempErrors.price = "Price must be greater than 0.";
-        }
-        if (!statuses.includes(repair.status)) {
-            tempErrors.status = "Invalid status.";
-        }
-        setErrors(tempErrors);
-        return Object.keys(tempErrors).length === 0;
+        return errorMsg;
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        const errorMsg = validateField(name, value);
+        setRepair({ ...repair, [name]: value });
+        setErrors({ ...errors, [name]: errorMsg });
+    };
+
+    const handleStatusChange = (e) => {
+        const value = e.target.value;
+        const errorMsg = statuses.includes(value) ? "" : "Invalid status.";
+        setRepair({ ...repair, status: value });
+        setErrors({ ...errors, status: errorMsg });
     };
 
     const fetchRepairDetails = async () => {
@@ -99,20 +128,18 @@ const AddEditRepair = () => {
         }
     };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setRepair({ ...repair, [name]: value });
-        setErrors({ ...errors, [name]: "" });
-    };
-
-    const handleStatusChange = (e) => {
-        setRepair({ ...repair, status: e.target.value });
-        setErrors({ ...errors, status: "" });
-    };
-
-    const goBack = () => {
-        localStorage.removeItem('editId');
-        navigate(-1);
+    const validateInputs = () => {
+        let valid = true;
+        let tempErrors = {};
+        for (const field in repair) {
+            const errorMsg = validateField(field, repair[field]);
+            if (errorMsg) {
+                valid = false;
+                tempErrors[field] = errorMsg;
+            }
+        }
+        setErrors(tempErrors);
+        return valid;
     };
 
     const handleSubmit = async (e) => {
@@ -138,32 +165,21 @@ const AddEditRepair = () => {
         }
     };
 
+    const goBack = () => {
+        localStorage.removeItem("editId");
+        navigate(-1);
+    };
+
     return (
         <ThemeProvider theme={theme}>
-            <div style={{ paddingTop: '20px' }}>
-                <Card
-                    sx={{
-                        width: "97%",
-                        margin: "auto",
-                        marginTop: "20px",
-                        marginBottom: "20px",
-                        textAlign: 'left',
-                    }}
-                >
+            <div style={{ paddingTop: "20px" }}>
+                <Card sx={{ width: "97%", margin: "auto", marginTop: "20px", marginBottom: "20px", textAlign: "left" }}>
                     <CardHeader
                         subheader={isEdit ? "The information can be edited" : "Enter repair details"}
                         title={isEdit ? "Edit Repair" : "Add Repair"}
                     />
                     <form onSubmit={handleSubmit}>
-                        <Card
-                            sx={{
-                                width: "97%",
-                                margin: "auto",
-                                marginTop: "20px",
-                                marginBottom: "20px",
-                                boxShadow: "none",
-                            }}
-                        >
+                        <Card sx={{ width: "97%", margin: "auto", marginTop: "20px", marginBottom: "20px", boxShadow: "none" }}>
                             <Divider />
                             <CardContent sx={{ marginTop: "20px" }}>
                                 <Grid container spacing={4}>
@@ -173,17 +189,19 @@ const AddEditRepair = () => {
                                             label="Date"
                                             name="date"
                                             type="date"
-                                            value={repair.date}
+                                            value={moment(repair.date).format('YYYY-MM-DD') || moment().format('YYYY-MM-DD')}
                                             onChange={handleInputChange}
                                             required
                                             variant="outlined"
+                                            error={!!errors.date}
+                                            helperText={errors.date}
                                             InputLabelProps={{ shrink: true }}
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
                                                         <DateRange />
                                                     </InputAdornment>
-                                                ),
+                                                )
                                             }}
                                         />
                                     </Grid>
@@ -203,7 +221,7 @@ const AddEditRepair = () => {
                                                     <InputAdornment position="start">
                                                         <Person />
                                                     </InputAdornment>
-                                                ),
+                                                )
                                             }}
                                         />
                                     </Grid>
@@ -223,7 +241,7 @@ const AddEditRepair = () => {
                                                     <InputAdornment position="start">
                                                         <PhoneAndroid />
                                                     </InputAdornment>
-                                                ),
+                                                )
                                             }}
                                         />
                                     </Grid>
@@ -243,7 +261,7 @@ const AddEditRepair = () => {
                                                     <InputAdornment position="start">
                                                         <Build />
                                                     </InputAdornment>
-                                                ),
+                                                )
                                             }}
                                         />
                                     </Grid>
@@ -263,7 +281,7 @@ const AddEditRepair = () => {
                                                     <InputAdornment position="start">
                                                         <Phone />
                                                     </InputAdornment>
-                                                ),
+                                                )
                                             }}
                                         />
                                     </Grid>
@@ -284,7 +302,7 @@ const AddEditRepair = () => {
                                                     <InputAdornment position="start">
                                                         <PriceCheck />
                                                     </InputAdornment>
-                                                ),
+                                                )
                                             }}
                                         />
                                     </Grid>
@@ -298,6 +316,8 @@ const AddEditRepair = () => {
                                                 label="Status"
                                                 error={!!errors.status}
                                                 helperText={errors.status}
+
+
                                                 InputProps={{
                                                     startAdornment: (
                                                         <InputAdornment position="start">

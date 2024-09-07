@@ -18,13 +18,18 @@ import axios from "axios";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import dayjs from "dayjs";
+import moment from "moment";
 
 const columnHelper = createMRTColumnHelper();
 const columns = [
     columnHelper.accessor("date", {
         header: "Date",
         size: 120,
-        cell: info => dayjs(info.getValue()).format('YYYY-MM-DD HH:mm'), // Format the date
+        Cell: ({ cell }) => {
+            return (
+                <div>{moment(cell.getValue()).format('YYYY-MM-DD HH:mm')}</div>
+            );
+        },
     }),
     columnHelper.accessor("name", {
         header: "Name",
@@ -45,6 +50,11 @@ const columns = [
     columnHelper.accessor("price", {
         header: "Price",
         size: 100,
+        Cell: ({ cell }) => {
+            return (
+                <div>Rs. {cell.getValue()}.00</div>
+            );
+        },
     }),
     columnHelper.accessor("status", {
         header: "Status",
