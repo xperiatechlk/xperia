@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Email, Lock } from "@mui/icons-material";
 import theme from "../theme/Theme";
-import LoginImage from "../assets/GOV HUB.png";
+import LoginImage from "../assets/logo.png";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -83,7 +83,7 @@ const Login = () => {
                         padding: "20px",
                         backgroundColor: "#f4f6f8",
                     }}>
-                        <img src={LoginImage} alt="logo" style={{ width: "400px", height: "400px" }} />
+                        <img src={LoginImage} alt="logo" style={{ width: "400px" }} />
                     </div>
                     <Card sx={{ width: 400, boxShadow: 'none' }}>
                         <CardHeader title="Login" />
