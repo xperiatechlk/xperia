@@ -27,7 +27,9 @@ import {
     ArrowBack,
     Cancel,
     SaveAlt,
-    Save
+    Save,
+    DeviceHub,
+    Person
 } from "@mui/icons-material";
 import theme from "../theme/Theme";
 
@@ -199,7 +201,7 @@ const AddEditRepair = () => {
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
-                                                        <PhoneAndroid />
+                                                        <Person />
                                                     </InputAdornment>
                                                 ),
                                             }}
@@ -219,7 +221,7 @@ const AddEditRepair = () => {
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
-                                                        <Build />
+                                                        <PhoneAndroid />
                                                     </InputAdornment>
                                                 ),
                                             }}

@@ -150,7 +150,7 @@ const ViewStaff = () => {
                             <Box display="flex" alignItems="center">
                                 <Work style={{ color: theme.palette.primary.dark }} />
                                 <Typography sx={{ marginLeft: '10px' }}>
-                                    <strong style={{ marginLeft: '10px', color: theme.palette.primary.main }}>Department ID:</strong> {staff.departmentID}
+                                    <strong style={{ marginLeft: '10px', color: theme.palette.primary.main }}>Role :</strong> {staff.role}
                                 </Typography>
                             </Box>
                         </Grid> 

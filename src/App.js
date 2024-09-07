@@ -37,13 +37,11 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
-        <main className="App">
+        <main className="App" >
           {user && <SideBar />}
           <div style={{
-            marginLeft: !user ? 0 : 230,
-            marginTop: !user ? 0 : '50px'
+            marginLeft: !user ? 0 : 230, 
           }}>
-            {user && <TopToolBar />}
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/login" element={<Login />} />
@@ -65,7 +63,7 @@ function App() {
           </div>
         </main>
       </ThemeProvider>
-    </BrowserRouter>
+    </BrowserRouter >
   );
 }
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, Box, Divider, Icon } from '@mui/material';
+import { Button, Box, Divider, Icon, Avatar } from '@mui/material';
 import NavItem from '../Components/NavItem';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -14,12 +14,40 @@ import { HomeRepairService, Person3 } from '@mui/icons-material';
 const SideBar = () => {
     const user = JSON.parse(localStorage.getItem('staff'))
     const navigate = useNavigate();
+    function stringToColor(string) {
+        let hash = 0;
+        let i;
 
-    const logOut =() =>{
+        /* eslint-disable no-bitwise */
+        for (i = 0; i < string.length; i += 1) {
+            hash = string.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        let color = '#';
+
+        for (i = 0; i < 3; i += 1) {
+            const value = (hash >> (i * 8)) & 0xff;
+            color += `00${value.toString(16)}`.slice(-2);
+        }
+        /* eslint-enable no-bitwise */
+
+        return color;
+    }
+
+    function stringAvatar(name) {
+        return {
+            sx: {
+                bgcolor: stringToColor(name),
+                marginRight: '20px'
+            },
+            children: `${name.split(' ')[0][0]}${name.split(' ')[1][0]}`,
+        };
+    }
+    const logOut = () => {
         localStorage.clear()
         navigate('/login')
         window.location.reload()
-    } 
+    }
     return (
         <Box sx={{
             position: 'fixed',
@@ -39,12 +67,34 @@ const SideBar = () => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 height: '71px',
-                marginBottom: '50px',
+                marginBottom: '10px',
                 backgroundColor: '#d0f2f2',
             }} >
-                <img src={Logo} height={'180px'} width={'260px'} />
-                
-            </div> 
+                <img src={Logo} height={'180px'} width={'240px'} />
+
+            </div>
+
+            <Button variant='text' sx={{
+                marginBottom: '10px',
+                width: '80%',
+                padding: '10px 0px',
+            }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'flex-start',
+                        alignItems: 'center',
+                        fontFamily: 'calibri',
+                        fontWeight: 'normal',
+                        color: '#2d375c',
+                        fontSize: '18px',
+                    }}>
+                    <Avatar {...stringAvatar(user?.firstName + ' ' + user?.lastName)} />
+                    <div style={{ textWrap: 'wrap' }}>{user?.firstName + ' ' + user?.lastName}</div>
+                </div>
+            </Button>
+
             <NavItem name="Dashboard" path="/" icon={<DashboardIcon />} />
             <NavItem name="Items" path="/item" icon={<ConfirmationNumberIcon />} />
             <NavItem name="Repairs" path="/repair" icon={<HomeRepairService />} />
