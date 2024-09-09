@@ -20,6 +20,8 @@ const AdminDashboard = () => {
     const [customerCount, setCustomerCount] = useState(0);
     const [repairData, setRepairData] = useState({});
     const [lowStockItems, setLowStockItems] = useState([]);
+    const [filteredStockData, setFilteredStockData] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
 
 
     useEffect(() => {
@@ -36,6 +38,7 @@ const AdminDashboard = () => {
                 // Set repair data and low stock details in the state
                 setRepairData(repairDataRes.data);
                 setLowStockItems(lowStockRes.data);
+                setFilteredStockData(lowStockRes.data)
 
             } catch (error) {
                 console.error('Error fetching data', error);
@@ -44,6 +47,18 @@ const AdminDashboard = () => {
 
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (searchTerm.length != 0 || searchTerm != '') {
+            const filteredItems = lowStockItems.filter(item =>
+                item.itemName.toLowerCase().includes(searchTerm)
+            );
+            setFilteredStockData(filteredItems)
+        }
+        else {
+            setFilteredStockData(lowStockItems)
+        }
+    }, [searchTerm])
 
 
     const transformRepairData = (data) => {
@@ -65,6 +80,7 @@ const AdminDashboard = () => {
 
         return result;
     };
+
     const repairChartOptions = {
         title: {
             text: 'Repair Data Over Time',
@@ -113,7 +129,6 @@ const AdminDashboard = () => {
             }
         }
     };
-
 
     function stringToColor(string) {
         let hash = 0;
@@ -195,6 +210,7 @@ const AdminDashboard = () => {
                                     <input
                                         type="search"
                                         placeholder="Search..."
+                                        value={searchTerm}
                                         style={{
                                             height: '30px',
                                             padding: '0 10px 0 35px',  // Padding to account for the icon
@@ -205,6 +221,7 @@ const AdminDashboard = () => {
                                             outline: 'none',
                                             transition: 'border-color 0.3s',
                                         }}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
                                         onFocus={(e) => e.target.style.borderColor = '#7058c6'}  // Border color on focus
                                         onBlur={(e) => e.target.style.borderColor = '#d1d1d1'}  // Border color on blur
                                     />
@@ -212,7 +229,7 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                         <div style={{ width: '100%' }}>
-                            {lowStockItems.map((item, index) => (
+                            {filteredStockData.map((item, index) => (
                                 <Box
                                     key={index}
                                     sx={{
