@@ -3,7 +3,7 @@ import { createTheme } from "@mui/material";
 const tableTheme = createTheme({
     palette: {
         primary: {
-            main: '#9ad6d7',
+            main: '#7058c6',
             light: '#d0f2f2',
             dark: '#68a3a4',
             contrastText: '#FFFFFF',
@@ -57,7 +57,7 @@ const tableTheme = createTheme({
                 },
                 head: {
                     fontWeight: 'bold',
-                    color: '#9ad6d7',  
+                    color: '#7058c6',  
                 },
                 body: {
                     color: '#333',
@@ -76,7 +76,7 @@ const tableTheme = createTheme({
         MuiIconButton: {
             styleOverrides: {
                 root: {
-                    color: '#9ad6d7',
+                    color: '#7058c6',
                     '&:hover': {
                         backgroundColor: '#F3F3F3',
                     },

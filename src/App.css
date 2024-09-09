@@ -1,7 +1,7 @@
 .App {
   text-align: center;
   /* background-image: linear-gradient( #569797); */
-  background-color: #d0f2f2;
+  background-color: #F0F8FF ;
   min-height: 100vh;
 }
 
@@ -43,7 +43,7 @@
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 12px;
-  background-color: #d0f2f2;
+  background-color: #f0f0f2;
 }
 
 ::-webkit-scrollbar-track {

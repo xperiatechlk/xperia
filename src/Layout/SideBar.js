@@ -70,7 +70,7 @@ const SideBar = () => {
                 marginBottom: '10px',
                 backgroundColor: '#d0f2f2',
             }} >
-                <img src={Logo} height={'180px'} width={'240px'} />
+                <img src={Logo} height={'180px'} width={'220px'} />
 
             </div>
 

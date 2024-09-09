@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import DashboardStyle from './Dashboard.style';
-import { Avatar, Box, Card, CardContent, MenuItem, Select, Grid, Typography } from '@mui/material';
+import { Avatar, Box, Card, CardContent, MenuItem, Select, Grid, Typography, TextField, InputAdornment } from '@mui/material';
 import BusinessIcon from '@mui/icons-material/Business';
 import PeopleIcon from '@mui/icons-material/People';
 import WorkIcon from '@mui/icons-material/Work';
@@ -9,6 +9,7 @@ import ReactECharts from 'echarts-for-react';
 import axios from 'axios';
 import CountCard from '../Components/CountCard';
 import theme from '../theme/Theme';
+import SearchIcon from '@mui/icons-material/Search';
 
 const AdminDashboard = () => {
     const classes = DashboardStyle();
@@ -17,148 +18,88 @@ const AdminDashboard = () => {
     const [solvedTicketCount, setSolvedTicketCount] = useState(0);
     const [staffCount, setStaffCount] = useState(0);
     const [customerCount, setCustomerCount] = useState(0);
-    const [topStaff, setTopStaff] = useState([]);
-    const [duration, setDuration] = useState('today');
-    const [performance, setPerformance] = useState('best');
-    const [departmentSolvedTicket, setDepartmentSolvedTicket] = useState([]);
-    const [solvedAndUnsolvedTicketCount, setSolvedAndUnsolvedTicketCount] = useState({});
-    const [ticketDetailsForWeek, setTicketDetailsForWeek] = useState({});
+    const [repairData, setRepairData] = useState({});
+    const [lowStockItems, setLowStockItems] = useState([]);
+
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const [
-                    departmentRes,
-                    solvedTicketRes,
-                    staffRes,
-                    customerRes,
-                    departmentSolvedTicketRes,
-                    solvedTicketCountRes,
-                    solvedAndPendingTicketsRes,
-                    topStaffRes
+                    repairDataRes, // New API call for repair data
+                    lowStockRes    // New API call for low stock items
                 ] = await Promise.all([
-                    axios.get('http://localhost:8070/api/dashboard/departments/count'),
-                    axios.get('http://localhost:8070/api/dashboard/tickets/solved/count'),
-                    axios.get('http://localhost:8070/api/dashboard/staff/count'),
-                    axios.get('http://localhost:8070/api/dashboard/customers/count'),
-                    axios.get('http://localhost:8070/api/dashboard/departments/solvedTickets'),
-                    axios.get('http://localhost:8070/api/dashboard/tickets/solvedTickets'),
-                    axios.get('http://localhost:8070/api/dashboard/tickets/solvedAndPendingTickets'),
-                    axios.post('http://localhost:8070/api/dashboard/staff/solvedTickets', { duration, performance })
+                    axios.get('http://localhost:8070/api/dashboard/repairs/statusCounts'),  // Fetch repair data
+                    axios.get('http://localhost:8070/api/dashboard/items/lowQuantity') // Fetch low stock items
                 ]);
 
-                console.log(solvedAndPendingTicketsRes.data)
-                setTicketDetailsForWeek(solvedAndPendingTicketsRes.data)
-                setSolvedAndUnsolvedTicketCount(solvedTicketCountRes.data)
-                setDepartmentSolvedTicket(departmentSolvedTicketRes.data)
-                setDepartmentCount(departmentRes.data.count);
-                setSolvedTicketCount(solvedTicketRes.data.count);
-                setStaffCount(staffRes.data.count);
-                setCustomerCount(customerRes.data.count);
-                setTopStaff(topStaffRes.data);
+                // Set repair data and low stock details in the state
+                setRepairData(repairDataRes.data);
+                setLowStockItems(lowStockRes.data);
+
             } catch (error) {
                 console.error('Error fetching data', error);
             }
         };
 
         fetchData();
-    }, [duration, performance]);
+    }, []);
 
-    const onDurationchange = (value) => {
-        setDuration(value);
-    };
 
-    const onPerformancechange = (value) => {
-        setPerformance(value);
-    };
+    const transformRepairData = (data) => {
+        const result = {
+            pendingCounts: [],
+            completedCounts: [],
+            deliveredCounts: []
+        };
 
-    // Department Distribution Chart
-    const departmentChartOptions = {
-        title: {
-            text: 'Department Solved Ticket Distribution',
-            left: 'center'
-        },
-        tooltip: {
-            trigger: 'item',
-            formatter: '{b}: {c} ({d}%)' // Format: Name: Value (Percentage)
-        },
-        color: ['#9ad6d7', '#80f8a0', '#80f8d4', '#80f8c2', '#80f8b2'],
-        series: [
-            {
-                name: 'Departments',
-                type: 'pie',
-                radius: '50%',
-                data: departmentSolvedTicket.map((item) => ({
-                    value: item.count,
-                    name: item.departmentName
-                })),
-                emphasis: {
-                    itemStyle: {
-                        shadowBlur: 10,
-                        shadowOffsetX: 0,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }
-                }
+        data.forEach(item => {
+            if (item.status === 'Pending') {
+                result.pendingCounts.push(item.count);
+            } else if (item.status === 'Done') {
+                result.completedCounts.push(item.count);
+            } else if (item.status === 'Delivered') {
+                result.deliveredCounts.push(item.count);
             }
-        ]
-    };
+        });
 
-    // Staff Performance Chart
-    const staffPerformanceChartOptions = {
+        return result;
+    };
+    const repairChartOptions = {
         title: {
-            text: 'Staff Performance',
+            text: 'Repair Data Over Time',
             left: 'center'
         },
         xAxis: {
             type: 'category',
-            data: topStaff.map(staff => staff.staffName)
+            data: repairData.dates,  // Replace with your repair data field
         },
         yAxis: {
             type: 'value'
         },
-        color: '#9ad6d7',
+        color: ['#7058c6', '#9887d6', '#211354'],
         series: [
             {
-                data: topStaff.map(staff => staff.count),
-                type: 'bar'
-            }
-        ],
-        tooltip: {
-            trigger: 'axis',
-            formatter: '{b0}: {c0}' // Format: Staff Name: Count
-        }
-    };
-
-    // Solved Cases Over Time Chart
-    const solvedCasesChartOptions = {
-        title: {
-            text: 'Solved Cases Over Time',
-            left: 'center'
-        },
-        xAxis: {
-            type: 'category',
-            data: ticketDetailsForWeek.dates,
-        },
-        yAxis: {
-            type: 'value'
-        },
-        color: ['#9ad6d7', '#84f89c'],
-        series: [
-            {
-                name: 'Pending Tickets',
-                data: ticketDetailsForWeek.pendingCounts,
+                name: 'Pending Repairs',
+                data: repairData.pendingCounts,  // Replace with your repair data field
                 type: 'line',
                 smooth: true
             },
             {
-                name: 'Solved Tickets',
-                data: ticketDetailsForWeek.solvedCounts,
+                name: 'Completed Repairs',
+                data: repairData.completedCounts,  // Replace with your repair data field
+                type: 'line',
+                smooth: true
+            },
+            {
+                name: 'Deliverd Repairs',
+                data: repairData.deliveredCounts,  // Replace with your repair data field
                 type: 'line',
                 smooth: true
             }
         ],
         legend: {
-            data: ['Pending Tickets', 'Solved Tickets'],
+            data: ['Pending Repairs', 'Completed Repairs', 'Deliverd Repairs'],
             top: 'bottom'
         },
         tooltip: {
@@ -173,71 +114,6 @@ const AdminDashboard = () => {
         }
     };
 
-    // Department-Wise Solved Tickets Chart
-    const departmentSolvedTicketsOptions = {
-        title: {
-            text: 'Department-Wise Solved Tickets',
-            left: 'center'
-        },
-        xAxis: {
-            type: 'category',
-            data: departmentSolvedTicket.map(item => item.departmentName) || []
-        },
-        yAxis: {
-            type: 'value'
-        },
-        color: '#9ad6d7',
-        series: [
-            {
-                data: departmentSolvedTicket.map(item => item.count) || [],
-                type: 'bar'
-            }
-        ],
-        tooltip: {
-            trigger: 'axis',
-            formatter: function (params) {
-                let tooltipHtml = '';
-                params.forEach(param => {
-                    tooltipHtml += `${param.marker} ${param.name}: ${param.value}<br/>`;
-                });
-                return tooltipHtml;
-            }
-        }
-    };
-
-    // Solved vs. Pending Tickets Chart
-    const solvedPendingTicketsOptions = {
-        title: {
-            text: 'Solved vs. Pending Tickets',
-            left: 'center'
-        },
-        legend: {
-            top: 'bottom'
-        },
-        color: ['#80f8a0', '#9ad6d7'],
-        series: [
-            {
-                name: 'Tickets',
-                type: 'pie',
-                radius: ['40%', '70%'],
-                data: [
-                    { value: solvedAndUnsolvedTicketCount.solved, name: 'Solved' },
-                    { value: solvedAndUnsolvedTicketCount.pending, name: 'Pending' }
-                ],
-                emphasis: {
-                    itemStyle: {
-                        shadowBlur: 10,
-                        shadowOffsetX: 0,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }
-                }
-            }
-        ],
-        tooltip: {
-            trigger: 'item',
-            formatter: '{b}: {c} ({d}%)' // Format: Name: Value (Percentage)
-        }
-    };
 
     function stringToColor(string) {
         let hash = 0;
@@ -285,7 +161,7 @@ const AdminDashboard = () => {
                             overflowY: 'scroll',
                             height: 'auto',
                             justifyContent: 'flex-start',
-                            alignItems: 'center', 
+                            alignItems: 'center',
                         }}
                     >
                         <div style={{
@@ -304,60 +180,39 @@ const AdminDashboard = () => {
                                     fontWeight: 'bold'
                                 }}
                             >
-                                Staff Performance
+                                Stock
                             </Typography>
-                            <div>
-                                <Select
-                                    value={duration}
-                                    onChange={(e) => onDurationchange(e.target.value)}
-                                    sx={{
-                                        width: '150px',
-                                        height: '30px',
-                                        backgroundColor: '#FFFFFF',
-                                        border: '1px solid #d1d1d1', // Light gray border
-                                        borderRadius: '5px',
-                                        marginLeft: '10px',
-                                        '& .MuiSelect-select': {
-                                            color: '#7058c6', // Primary color for the text
-                                        },
-                                        '& .MuiSelect-icon': {
-                                            color: '#7058c6' // Primary color for the icon
-                                        }
-                                    }}
-                                >
-                                    <MenuItem value="today">Today</MenuItem>
-                                    <MenuItem value="thisWeek">This week</MenuItem>
-                                    <MenuItem value="lastWeek">Last week</MenuItem>
-                                    <MenuItem value="thisMonth">This Month</MenuItem>
-                                    <MenuItem value="lastMonth">Last Month</MenuItem>
-                                    <MenuItem value="thisYear">This Year</MenuItem>
-                                    <MenuItem value="lastYear">Last Year</MenuItem>
-                                </Select>
-                                <Select
-                                    value={performance}
-                                    onChange={(e) => onPerformancechange(e.target.value)}
-                                    sx={{
-                                        width: '150px',
-                                        height: '30px',
-                                        backgroundColor: '#FFFFFF',
-                                        border: '1px solid #d1d1d1', // Light gray border
-                                        borderRadius: '5px',
-                                        marginLeft: '10px',
-                                        '& .MuiSelect-select': {
-                                            color: '#7058c6', // Primary color for the text
-                                        },
-                                        '& .MuiSelect-icon': {
-                                            color: '#7058c6' // Primary color for the icon
-                                        }
-                                    }}
-                                >
-                                    <MenuItem value="best">Best Performed</MenuItem>
-                                    <MenuItem value="worst">Worst Performed</MenuItem>
-                                </Select>
+                            <div style={{ display: 'flex', flexDirection: 'row', position: 'relative' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', position: 'relative', width: '200px', marginRight: '15px' }}>
+                                    <SearchIcon
+                                        style={{
+                                            position: 'absolute',
+                                            left: '10px',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            color: '#7058c6'
+                                        }} />
+                                    <input
+                                        type="search"
+                                        placeholder="Search..."
+                                        style={{
+                                            height: '30px',
+                                            padding: '0 10px 0 35px',  // Padding to account for the icon
+                                            backgroundColor: '#FFFFFF',
+                                            border: '1px solid #d1d1d1',  // Light gray border
+                                            borderRadius: '5px',
+                                            color: '#7058c6',  // Primary color for the text
+                                            outline: 'none',
+                                            transition: 'border-color 0.3s',
+                                        }}
+                                        onFocus={(e) => e.target.style.borderColor = '#7058c6'}  // Border color on focus
+                                        onBlur={(e) => e.target.style.borderColor = '#d1d1d1'}  // Border color on blur
+                                    />
+                                </div>
                             </div>
                         </div>
                         <div style={{ width: '100%' }}>
-                            {topStaff.map((staff, index) => (
+                            {lowStockItems.map((item, index) => (
                                 <Box
                                     key={index}
                                     sx={{
@@ -367,37 +222,24 @@ const AdminDashboard = () => {
                                         alignItems: 'center',
                                         marginBottom: '15px',
                                         padding: '15px',
-                                        backgroundColor: '#ffffff', // White background for staff details
+                                        backgroundColor: '#ffffff',
                                         borderRadius: '8px',
-                                        border: '1px solid #d1d1d1', // Light gray border for staff details
+                                        border: '1px solid #d1d1d1',
                                         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                                     }}
                                 >
-                                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                                        <Avatar {...stringAvatar(staff.staffName)} />
-                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                                            <Typography
-                                                variant="subtitle1"
-                                                sx={{ color: '#7058c6' }} // Primary color for staff name
-                                            >
-                                                {staff.staffName}
-                                            </Typography>
-                                            <Typography
-                                                variant="body2"
-                                                color="textSecondary"
-                                            >
-                                                {staff.staffRole}
-                                            </Typography>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <Typography
-                                            variant="body1"
-                                            sx={{ color: '#7058c6' }} // Primary color for resolved tickets text
-                                        >
-                                            Resolved: {staff.count}
-                                        </Typography>
-                                    </div>
+                                    <Typography
+                                        variant="subtitle1"
+                                        sx={{ color: '#7058c6' }}
+                                    >
+                                        {item.itemName}
+                                    </Typography>
+                                    <Typography
+                                        variant="body1"
+                                        sx={{ color: '#FF6961' }}  // Red color for low stock warning
+                                    >
+                                        Stock: {item.quantity}
+                                    </Typography>
                                 </Box>
                             ))}
                         </div>
@@ -461,77 +303,11 @@ const AdminDashboard = () => {
                                 overflow: 'hidden',
                             }}
                         >
-                            <ReactECharts option={departmentChartOptions} style={{ height: '100%' }} />
+                            <ReactECharts option={repairChartOptions} style={{ height: '100%' }} />
                         </Card>
                     </Grid>
                 </Grid>
             </Grid >
-            <Grid container spacing={1} sx={{ marginBottom: '30px' }}>
-                <Grid item md={12} xs={12} >
-                    <Card
-                        sx={{
-                            boxShadow: '1px 1px 3px 0px #BF7EFF',
-                            borderRadius: '5px',
-                            padding: '10px',
-                            width: '100%',
-                            height: '450px',
-                            overflow: 'hidden',
-                            marginTop: '30px',
-                        }}
-                    >
-                        <ReactECharts option={staffPerformanceChartOptions} style={{ height: '100%' }} />
-                    </Card>
-                </Grid>
-                <Grid item md={12} xs={12} >
-                    <Grid container spacing={5}>
-                        <Grid item md={7} xs={12} >
-                            <Card
-                                sx={{
-                                    boxShadow: '1px 1px 3px 0px #BF7EFF',
-                                    borderRadius: '5px',
-                                    padding: '10px',
-                                    width: '100%',
-                                    height: '450px',
-                                    overflow: 'hidden',
-                                    marginTop: '30px',
-                                }}
-                            >
-                                <ReactECharts option={departmentSolvedTicketsOptions} style={{ height: '100%' }} />
-                            </Card>
-                        </Grid>
-                        <Grid item md={5} xs={12} >
-                            <Card
-                                sx={{
-                                    boxShadow: '1px 1px 3px 0px #BF7EFF',
-                                    borderRadius: '5px',
-                                    padding: '10px',
-                                    width: '100%',
-                                    height: '450px',
-                                    overflow: 'hidden',
-                                    marginTop: '30px',
-                                }}
-                            >
-                                <ReactECharts option={solvedPendingTicketsOptions} style={{ height: '100%' }} />
-                            </Card>
-                        </Grid>
-                    </Grid>
-                </Grid>
-                <Grid item md={12} xs={12} >
-                    <Card
-                        sx={{
-                            boxShadow: '1px 1px 3px 0px #BF7EFF',
-                            borderRadius: '5px',
-                            padding: '10px',
-                            width: '100%',
-                            height: '450px',
-                            overflow: 'hidden',
-                            marginTop: '30px',
-                        }}
-                    >
-                        <ReactECharts option={solvedCasesChartOptions} style={{ height: '100%' }} />
-                    </Card>
-                </Grid>
-            </Grid>
         </div >
     );
 }
