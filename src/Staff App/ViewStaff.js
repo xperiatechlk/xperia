@@ -29,6 +29,7 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import theme from '../theme/Theme';
+import { API_URL } from '../Constent/Constent';
 
 const ViewStaff = () => {
     const id = localStorage.getItem('viewId');
@@ -39,7 +40,7 @@ const ViewStaff = () => {
         // Fetch staff details from the API
         const fetchStaff = async () => {
             try {
-                const res = await axios.get(`http://localhost:8070/api/staff/${id}`);
+                const res = await axios.get(API_URL +`/staff/${id}`);
                 setStaff(res.data);
                 console.log(res.data); 
             } catch (error) {

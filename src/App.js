@@ -22,6 +22,8 @@ import ItemList from './ItemApp/ItemList';
 import AddEditItem from './ItemApp/AddEditItem';
 import RepairList from './Repair App/RepairList';
 import AddEditRepair from './Repair App/AddEditRepair';
+import SalesList from './Salles App/SallesList';
+import AddEditSales from './Salles App/AddEditSales';
 
 /**
  * main application function
@@ -58,7 +60,9 @@ function App() {
               <Route path="/item" element={<ItemList />} />
               <Route path="/addItem" element={<AddEditItem />} />
               <Route path="/repair" element={<RepairList />} />
-              <Route path="/addRepair" element={<AddEditRepair />} />
+              <Route path="/addRepair" element={<AddEditRepair />} /> 
+              <Route path="/sales" element={<SalesList />} />
+              <Route path="/addSale" element={<AddEditSales />} />
             </Routes>
           </div>
         </main>

@@ -32,6 +32,7 @@ import {
 } from "@mui/icons-material";
 import theme from "../theme/Theme";
 import moment from 'moment';
+import { API_URL } from "../Constent/Constent";
 
 const statuses = ["Pending", "Done", "Delivered"];
 
@@ -119,7 +120,7 @@ const AddEditRepair = () => {
 
     const fetchRepairDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8070/api/repairs/${id}`);
+            const response = await axios.get(API_URL +`/repairs/${id}`);
             setRepair(response.data);
             setIsEdit(true);
         } catch (error) {
@@ -151,10 +152,10 @@ const AddEditRepair = () => {
 
         try {
             if (isEdit) {
-                await axios.put(`http://localhost:8070/api/repairs/${id}`, repair);
+                await axios.put(API_URL +`/repairs/${id}`, repair);
                 toast.success("Repair updated successfully");
             } else {
-                await axios.post("http://localhost:8070/api/repairs", repair);
+                await axios.post(API_URL +"/repairs", repair);
                 toast.success("Repair added successfully");
             }
             navigate(-1);

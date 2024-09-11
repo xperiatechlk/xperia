@@ -19,6 +19,7 @@ import theme from "../theme/Theme";
 import LoginImage from "../assets/logo.png";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { API_URL } from "../Constent/Constent";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -36,7 +37,7 @@ const Login = () => {
         e.preventDefault();
         try {
             // Replace with your login API endpoint
-            const res = await axios.post("http://localhost:8070/api/staff/login", credentials);
+            const res = await axios.post(API_URL +"/staff/login", credentials);
 
             // Save token and user data to localStorage
             localStorage.setItem("token", res.data.token);

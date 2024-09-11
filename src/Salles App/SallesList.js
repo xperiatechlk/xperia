@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import {
     MaterialReactTable,
@@ -16,54 +15,72 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from "axios";
-import { confirmAlert } from 'react-confirm-alert'; // Import confirmation dialog
-import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css for confirmation dialog 
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 import { API_URL } from "../Constent/Constent";
-
-
 
 const columnHelper = createMRTColumnHelper();
 const columns = [
-    columnHelper.accessor("_id", {
-        header: "ID",
-        size: 120,
+    columnHelper.accessor("date", {
+        header: "Date",
+        size: 100,
+        Cell: ({ cell }) => {
+            const date = new Date(cell.getValue()).toLocaleDateString();
+            return <div>{date}</div>;
+        }
     }),
-    columnHelper.accessor("firstName", {
-        header: "First Name",
-        size: 120,
+    columnHelper.accessor("name", {
+        header: "Customer Name",
+        size: 150,
     }),
-    columnHelper.accessor("lastName", {
-        header: "Last Name",
-        size: 120,
-    }),
-    columnHelper.accessor("emailAddress", {
-        header: "Email Address",
+    columnHelper.accessor("address", {
+        header: "Address",
         size: 200,
     }),
-    columnHelper.accessor("phoneNumber", {
-        header: "Phone Number",
+    columnHelper.accessor("itemName", {
+        header: "Item Name",
         size: 150,
     }),
-    columnHelper.accessor("role", {
-        header: "Role",
+    columnHelper.accessor("contactNumber", {
+        header: "Contact Number",
+        size: 130,
+    }),
+    columnHelper.accessor("amount", {
+        header: "Amount",
+        size: 100,
+        Cell: ({ cell }) => {
+            return <div>Rs. {cell.getValue()}.00</div>;
+        },
+    }),
+    columnHelper.accessor("paymentType", {
+        header: "Payment Type",
+        size: 120,
+    }),
+    columnHelper.accessor("bankName", {
+        header: "Bank Name",
+        size: 120,
+        Cell: ({ cell }) => cell.getValue() || 'N/A',
+    }),
+    columnHelper.accessor("trackingID", {
+        header: "Tracking ID",
         size: 150,
+        Cell: ({ cell }) => cell.getValue() || 'N/A',
     }),
 ];
 
-
-const StaffApp = () => {
+const SalesList = () => {
     const [data, setData] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(API_URL +"/staff");
+                const response = await axios.get(API_URL + "/sales");
                 setData(response.data);
                 console.log(response.data);
             } catch (error) {
-                console.error("Error fetching data:", error);
-                toast.error("Error fetching staff members");
+                console.error("Error fetching sales data:", error);
+                toast.error("Error fetching sales data");
             }
         };
         fetchData();
@@ -79,34 +96,33 @@ const StaffApp = () => {
             body: tableData,
         });
 
-        doc.save('mrt-pdf-example.pdf');
+        doc.save('sales-pdf-export.pdf');
     };
 
     const gotoViewPage = (id) => {
-        navigate('/viewStaff')
-        localStorage.setItem("viewId", id)
+        navigate('/viewSale');
+        localStorage.setItem("viewId", id);
     };
 
     const handleUpdate = (id) => {
-        navigate(`/addStaff`);
+        navigate(`/addSale`);
         localStorage.setItem("editId", id);
     };
 
     const handleDelete = async (id) => {
         confirmAlert({
             title: 'Confirm to Delete',
-            message: "Are you sure you want to delete this staff member?",
+            message: "Are you sure you want to delete this sale?",
             buttons: [
                 {
                     label: 'Yes',
                     onClick: async () => {
                         try {
-                            // Call the delete API
-                            await axios.delete(API_URL +`/staff/${id}`);
-                            toast.success("Staff member deleted successfully");
-                            setData(prevData => prevData.filter(staff => staff._id !== id));
+                            await axios.delete(API_URL + `/sales/${id}`);
+                            toast.success("Sale deleted successfully");
+                            setData(prevData => prevData.filter(sale => sale._id !== id));
                         } catch (error) {
-                            toast.error('Failed to delete staff member');
+                            toast.error('Failed to delete sale');
                             console.error(error);
                         }
                     }
@@ -181,11 +197,10 @@ const StaffApp = () => {
 
     const handleAddNew = () => {
         localStorage.removeItem('editId');
-        navigate('/addStaff', {});
+        navigate('/addSale', {});
     };
 
     return (
-
         <div style={{ paddingTop: '20px' }}>
             <Card
                 sx={{
@@ -206,7 +221,7 @@ const StaffApp = () => {
                             marginLeft: '25px',
                             marginTop: '20px',
                         }}>
-                        Staff Members
+                        Sales List
                     </Typography>
 
                     <ThemeProvider theme={theme}>
@@ -214,16 +229,17 @@ const StaffApp = () => {
                             onClick={() => handleAddNew()}
                             startIcon={<AddIcon />}
                         >
-                            Add New
+                            Add New Sale
                         </Button>
                     </ThemeProvider>
                 </div>
                 <ThemeProvider theme={tableTheme}>
                     <MaterialReactTable table={table} />
                 </ThemeProvider>
-            </Card >
+            </Card>
+            <ToastContainer />
         </div>
     );
 };
 
-export default StaffApp;
+export default SalesList;

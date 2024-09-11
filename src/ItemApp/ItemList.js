@@ -17,6 +17,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import axios from "axios";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import { API_URL } from "../Constent/Constent";
 
 const columnHelper = createMRTColumnHelper();
 const columns = [
@@ -68,7 +69,7 @@ const ItemList = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://localhost:8070/api/items");
+                const response = await axios.get(API_URL +"/items");
                 setData(response.data);
                 console.log(response.data);
             } catch (error) {
@@ -111,7 +112,7 @@ const ItemList = () => {
                     label: 'Yes',
                     onClick: async () => {
                         try {
-                            await axios.delete(`http://localhost:8070/api/items/${id}`);
+                            await axios.delete(API_URL +`/items/${id}`);
                             toast.success("Item deleted successfully");
                             setData(prevData => prevData.filter(item => item._id !== id));
                         } catch (error) {

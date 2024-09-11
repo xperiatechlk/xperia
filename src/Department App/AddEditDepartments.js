@@ -25,6 +25,7 @@ import {
     Cancel,
 } from "@mui/icons-material";
 import theme from "../theme/Theme";
+import { API_URL } from "../Constent/Constent";
 
 const AddEditItem = () => {
     const id = localStorage.getItem("editId");
@@ -75,7 +76,7 @@ const AddEditItem = () => {
 
     const fetchItemDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8070/api/items/${id}`);
+            const response = await axios.get(API_URL + `/items/${id}`);
             setItem(response.data);
             setIsEdit(true);
         } catch (error) {
@@ -104,7 +105,7 @@ const AddEditItem = () => {
 
         try {
             if (isEdit) {
-                await axios.put(`http://localhost:8070/api/items/${id}`, item);
+                await axios.put(API_URL + `/items/${id}`, item);
                 toast.success("Item updated successfully");
             } else {
                 await axios.post("http://localhost:8070/api/items", item);

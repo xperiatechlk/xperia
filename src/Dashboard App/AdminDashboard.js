@@ -10,6 +10,7 @@ import axios from 'axios';
 import CountCard from '../Components/CountCard';
 import theme from '../theme/Theme';
 import SearchIcon from '@mui/icons-material/Search';
+import { API_URL } from '../Constent/Constent';
 
 const AdminDashboard = () => {
     const classes = DashboardStyle();
@@ -31,8 +32,8 @@ const AdminDashboard = () => {
                     repairDataRes, // New API call for repair data
                     lowStockRes    // New API call for low stock items
                 ] = await Promise.all([
-                    axios.get('http://localhost:8070/api/dashboard/repairs/statusCounts'),  // Fetch repair data
-                    axios.get('http://localhost:8070/api/dashboard/items/lowQuantity') // Fetch low stock items
+                    axios.get(API_URL + '/dashboard/repairs/statusCounts'),  // Fetch repair data
+                    axios.get(API_URL + '/dashboard/items/lowQuantity') // Fetch low stock items
                 ]);
 
                 // Set repair data and low stock details in the state

@@ -43,6 +43,7 @@ import {
     Person2,
 } from "@mui/icons-material";
 import theme from "../theme/Theme";
+import { API_URL } from "../Constent/Constent";
 
 const AddEditStaff = () => {
     const roles = ["admin", "staff"];
@@ -76,7 +77,7 @@ const AddEditStaff = () => {
 
     const fetchStaffDetails = async (staffId) => {
         try {
-            const res = await axios.get(`http://localhost:8070/api/staff/${staffId}`);
+            const res = await axios.get(API_URL +`/staff/${staffId}`);
             setStaff({
                 ...res.data,
                 hireDate: dayjs(res.data.hireDate).format('YYYY-MM-DD'),
@@ -199,12 +200,12 @@ const AddEditStaff = () => {
 
         try {
             if (isEdit) {
-                await axios.put(`http://localhost:8070/api/staff/${id}`, staff);
+                await axios.put(API_URL +`/staff/${id}`, staff);
                 enqueueSnackbar("Staff updated successfully", {
                     variant: "success",
                 });
             } else {
-                await axios.post("http://localhost:8070/api/staff", staff);
+                await axios.post(API_URL +"/staff", staff);
                 enqueueSnackbar("Staff added successfully", {
                     variant: "success",
                 });

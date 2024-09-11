@@ -19,6 +19,7 @@ import RecentlySolvedTicketCard from '../Components/Dashboard/Staff/RecentlySolv
 import TicketHistory from '../Components/Dashboard/Staff/TicketHistory'
 import TicketList from '../Components/Dashboard/Staff/TicketList';
 import StaffPerformanceChart from '../Components/Dashboard/Staff/StaffPerformanceChart';
+import { API_URL } from '../Constent/Constent';
 
 const StaffDashboard = () => {
     const classes = DashboardStyle();
@@ -38,7 +39,7 @@ const StaffDashboard = () => {
     useEffect(() => {
         const fetchSolvedAndPendingTickets = async () => {
             try {
-                const response = await axios.post('http://localhost:8070/api/dashboard/staff/performance', { staffID: user?.id });
+                const response = await axios.post(API_URL + '/dashboard/staff/performance', { staffID: user?.id });
                 setUserPerformence(response.data[user?.id]);
             } catch (error) {
                 console.error('Error fetching solved and pending tickets', error);
@@ -51,7 +52,7 @@ const StaffDashboard = () => {
     useEffect(() => {
         const fetchTopStaff = async () => {
             try {
-                const response = await axios.post('http://localhost:8070/api/dashboard/staff/solvedTickets', { duration, performance });
+                const response = await axios.post(API_URL + '/dashboard/staff/solvedTickets', { duration, performance });
                 setTopStaff(response.data);
             } catch (error) {
                 console.error('Error fetching top staff', error);
@@ -91,7 +92,7 @@ const StaffDashboard = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.post('http://localhost:8070/api/dashboard/staff/solvedTickets/' + user?.id, { duration: userDuration })
+                const res = await axios.post(API_URL + '/dashboard/staff/solvedTickets/' + user?.id, { duration: userDuration })
                 setUserSolvedTicket(res.data);
             } catch (error) {
                 console.error('Error fetching data', error);
@@ -104,7 +105,7 @@ const StaffDashboard = () => {
     useEffect(() => {
         const getPendingTickets = async () => {
             try {
-                const res = await axios.get('http://localhost:8070/api/tickets')
+                const res = await axios.get(API_URL + '/tickets')
                 let ticketList = res.data.filter((item) => item.status == 'Pending' && item.departmentID == user?.departmentID)
                 setPendingTickets(ticketList);
             } catch (error) {
