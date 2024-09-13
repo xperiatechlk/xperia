@@ -19,6 +19,7 @@ import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import dayjs from "dayjs";
 import moment from "moment";
+import { API_URL } from "../Constent/Constent";
 
 const columnHelper = createMRTColumnHelper();
 const columns = [
@@ -65,9 +66,9 @@ const columns = [
                 <span
                     style={{
                         color:
-                            status === "pending"
+                            status === "Pending"
                                 ? "orange"
-                                : status === "done"
+                                : status === "Done"
                                     ? "green"
                                     : "blue",
                     }}
@@ -86,7 +87,7 @@ const RepairList = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://localhost:8070/api/repairs");
+                const response = await axios.get(API_URL +"/repairs");
                 setData(response.data);
             } catch (error) {
                 console.error("Error fetching repair data:", error);
@@ -128,7 +129,7 @@ const RepairList = () => {
                     label: 'Yes',
                     onClick: async () => {
                         try {
-                            await axios.delete(`http://localhost:8070/api/repairs/${id}`);
+                            await axios.delete(API_URL +`/repairs/${id}`);
                             toast.success("Repair deleted successfully");
                             setData(prevData => prevData.filter(repair => repair._id !== id));
                         } catch (error) {

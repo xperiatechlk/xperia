@@ -15,8 +15,8 @@ const NavItem = (props) => {
             sx={{
                 width: 180,
                 height: '35px',
-                backgroundColor: location.pathname == path && theme.palette.primary.dark,
-                color: location.pathname == path ? '#ffffff' : '#2d375c',
+                backgroundColor: location.pathname == path && '#7058C6',
+                color: location.pathname == path ? '#ffffff' : '#7058C6',
                 boxShadow: location.pathname == path ? '0px 0px 4px #1c1c1c' : 'none',
                 fontWeight: location.pathname == path ? 'bold' : 'normal',
                 display: 'flex',

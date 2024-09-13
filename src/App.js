@@ -43,6 +43,7 @@ function App() {
           {user && <SideBar />}
           <div style={{
             marginLeft: !user ? 0 : 230, 
+            marginTop:'-30px'
           }}>
             <Routes>
               <Route path="/" element={<Dashboard />} />

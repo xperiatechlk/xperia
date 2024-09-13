@@ -24,6 +24,7 @@ import {
 } from "material-react-table";
 import { confirmAlert } from 'react-confirm-alert'; // Import confirmation dialog
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css for confirmation dialog 
+import { API_URL } from "../Constent/Constent";
 
 
 const columnHelper = createMRTColumnHelper();
@@ -55,7 +56,7 @@ const columns = [
       useEffect(() => {
         const fetchName = async () => {
           try {
-            const response = await axios.get(`http://localhost:8070/api/staff/${cell.getValue()}`);
+            const response = await axios.get(API_URL +`/staff/${cell.getValue()}`);
             const firstName = response.data.firstName || 'No data found';
             const lastName = response.data.lastName || '';
             setName(`${firstName} ${lastName}`.trim());
@@ -143,7 +144,7 @@ const DepartmentApp = () => {
           onClick: async () => {
             try {
               // Call the delete API
-              await axios.delete(`http://localhost:8070/api/departments/${id}`);
+              await axios.delete(API_URL +`/departments/${id}`);
               toast.success("Department deleted successfully");
               fetchData();
             } catch (error) {

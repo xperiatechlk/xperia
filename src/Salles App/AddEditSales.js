@@ -9,39 +9,38 @@ import {
     Grid,
     TextField,
     InputAdornment,
+    IconButton,
     ThemeProvider,
     MenuItem,
     Select,
     FormControl,
     InputLabel,
-    FormControlLabel,
-    Checkbox
+    Typography
 } from "@mui/material";
-import Autocomplete from '@mui/material/Autocomplete'; // Updated import for Autocomplete component
+import Autocomplete from '@mui/lab/Autocomplete';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
-    Phone,
-    DateRange,
-    PriceCheck,
     ArrowBack,
     Cancel,
     SaveAlt,
     Save,
-    Person
+    Person,
+    Visibility,
+    VisibilityOff
 } from "@mui/icons-material";
 import theme from "../theme/Theme";
-import moment from 'moment';
 import { API_URL } from "../Constent/Constent";
+import moment from 'moment';
 
 const paymentTypes = ["Cash", "Card", "Bank"];
-const statuses = ["Pending", "Done", "Delivered"];
 
 const AddEditSale = () => {
     const id = localStorage.getItem("editId");
     const navigate = useNavigate();
+
     const [sale, setSale] = useState({
         date: moment().format('YYYY-MM-DD'),
         name: "",
@@ -53,166 +52,99 @@ const AddEditSale = () => {
         paymentType: paymentTypes[0],
         bankName: "",
         trackingID: "",
-        isShipped: false
+        isShipped: false,
     });
-    const [isEdit, setIsEdit] = useState(false);
+
     const [errors, setErrors] = useState({});
-    const [items, setItems] = useState([]); // For storing item list
+    const [items, setItems] = useState([]);
+    const [showUnitPrice, setShowUnitPrice] = useState(false);
+    const [totalAmount, setTotalAmount] = useState(0);
+    const [realPrice, setRealPrice] = useState(0);
 
     useEffect(() => {
         if (id) {
             fetchSaleDetails();
         }
-        fetchItems(); // Fetch items for autocomplete
+        fetchItems();
     }, [id]);
-
-    const fetchItems = async () => {
-        try {
-            const response = await axios.get(API_URL + "/items"); // Adjust the endpoint to fetch items
-            setItems(response.data); // Assuming response.data is an array of items
-        } catch (error) {
-            console.error("Error fetching items:", error);
-            toast.error("Error fetching items");
-        }
-    };
-
-    const validateField = (name, value) => {
-        let errorMsg = "";
-        switch (name) {
-            case "name":
-                if (!/^[a-zA-Z ]{2,100}$/.test(value)) {
-                    errorMsg = "Name should be 2-100 characters long.";
-                }
-                break;
-            case "address":
-                if (!value.trim()) {
-                    errorMsg = "Address is required.";
-                }
-                break;
-            case "itemName":
-                if (!value.trim()) {
-                    errorMsg = "Item Name is required.";
-                }
-                break;
-            case "contactNumber":
-                if (!/^\d{10}$/.test(value)) {
-                    errorMsg = "Contact Number must be 10 digits.";
-                }
-                break;
-            case "amount":
-                if (value <= 0) {
-                    errorMsg = "Amount must be greater than 0.";
-                }
-                break;
-            case "quantity":
-                if (value < 1) {
-                    errorMsg = "Quantity must be at least 1.";
-                }
-                break;
-            case "date":
-                if (!value) {
-                    errorMsg = "Date is required.";
-                }
-                break;
-            case "bankName":
-                if (sale.paymentType === "Bank" && !value.trim()) {
-                    errorMsg = "Bank Name is required for Bank payment.";
-                }
-                break;
-            case "trackingID":
-                if (sale.isShipped && !value.trim()) {
-                    errorMsg = "Tracking ID is required if the item is shipped.";
-                }
-                break;
-            default:
-                break;
-        }
-        return errorMsg;
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        const errorMsg = validateField(name, value);
-        setSale({ ...sale, [name]: value });
-        setErrors({ ...errors, [name]: errorMsg });
-    };
-
-    const handlePaymentTypeChange = (e) => {
-        const value = e.target.value;
-        const errorMsg = paymentTypes.includes(value) ? "" : "Invalid payment type.";
-        setSale({ ...sale, paymentType: value });
-        setErrors({ ...errors, paymentType: errorMsg });
-    };
-
-    const handleIsShippedChange = (e) => {
-        const value = e.target.checked;
-        setSale({ ...sale, isShipped: value, trackingID: value ? sale.trackingID : "" });
-        if (value) {
-            setErrors({ ...errors, trackingID: validateField("trackingID", sale.trackingID) });
-        } else {
-            setErrors({ ...errors, trackingID: "" });
-        }
-    };
 
     const fetchSaleDetails = async () => {
         try {
-            const response = await axios.get(API_URL + `/sales/${id}`);
+            const response = await axios.get(`${API_URL}/sales/${id}`);
             setSale(response.data);
-            setIsEdit(true);
         } catch (error) {
-            console.error("Error fetching sale details:", error);
             toast.error("Error fetching sale details");
         }
     };
 
-    const validateInputs = () => {
-        let valid = true;
-        let tempErrors = {};
-        for (const field in sale) {
-            if (field !== "trackingID" && field !== "bankName") {
-                const errorMsg = validateField(field, sale[field]);
-                if (errorMsg) {
-                    valid = false;
-                    tempErrors[field] = errorMsg;
-                }
-            } else if (field === "trackingID" && sale.isShipped) {
-                const errorMsg = validateField(field, sale[field]);
-                if (errorMsg) {
-                    valid = false;
-                    tempErrors[field] = errorMsg;
-                }
-            } else if (field === "bankName" && sale.paymentType === "Bank") {
-                const errorMsg = validateField(field, sale[field]);
-                if (errorMsg) {
-                    valid = false;
-                    tempErrors[field] = errorMsg;
-                }
-            }
+    const fetchItems = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/items`);
+            setItems(response.data);
+        } catch (error) {
+            toast.error("Error fetching items");
         }
-        setErrors(tempErrors);
-        return valid;
+    };
+
+    const validateFields = () => {
+        const newErrors = {};
+        if (!sale.name.trim()) newErrors.name = "Name is required";
+        if (!/^[a-zA-Z ]{2,100}$/.test(sale.name)) newErrors.name = "Name should be 2-100 characters";
+        if (!sale.address.trim()) newErrors.address = "Address is required";
+        if (!/^\d{10}$/.test(sale.contactNumber)) newErrors.contactNumber = "Contact number must be 10 digits";
+        if (sale.amount <= 0) newErrors.amount = "Amount must be greater than 0";
+        if (sale.quantity < 1) newErrors.quantity = "Quantity must be at least 1";
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0; // Returns true if no errors
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setSale((prev) => ({ ...prev, [name]: value }));
+
+        // Update total amount dynamically
+        if (name === "quantity" || name === "amount") {
+            const quantity = name === "quantity" ? value : sale.quantity;
+            const amount = name === "amount" ? value : sale.amount;
+            setTotalAmount(quantity * amount);
+        }
+    };
+
+    const handleItemSelect = (event, newValue) => {
+        setRealPrice(newValue?.unitPrice || 0);
+        setSale((prev) => ({
+            ...prev,
+            itemName: newValue?.itemName || "",
+            amount: newValue?.sellingPrice || 0
+        }));
+        setTotalAmount(sale.quantity * (newValue?.sellingPrice || 0));
+    };
+
+    const handleToggleUnitPriceVisibility = () => {
+        setShowUnitPrice(!showUnitPrice);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validateInputs()) {
-            toast.error("Please fix the validation errors.");
+
+        if (!validateFields()) {
+            toast.error("Please fix validation errors.");
             return;
         }
 
         try {
-            if (isEdit) {
-                await axios.put(API_URL + `/sales/${id}`, sale);
+            if (id) {
+                await axios.put(`${API_URL}/sales/${id}`, sale);
                 toast.success("Sale updated successfully");
             } else {
-                await axios.post(API_URL + "/sales", sale);
+                await axios.post(`${API_URL}/sales`, sale);
                 toast.success("Sale added successfully");
             }
             navigate(-1);
             localStorage.removeItem("editId");
         } catch (error) {
-            console.error("API error:", error);
-            toast.error(error.response?.data?.message || "Failed to save sale");
+            toast.error("Failed to save sale");
         }
     };
 
@@ -226,242 +158,211 @@ const AddEditSale = () => {
             <div style={{ paddingTop: "20px" }}>
                 <Card sx={{ width: "97%", margin: "auto", marginTop: "20px", marginBottom: "20px", textAlign: "left" }}>
                     <CardHeader
-                        subheader={isEdit ? "The information can be edited" : "Enter sale details"}
-                        title={isEdit ? "Edit Sale" : "Add Sale"}
+                        subheader={id ? "The information can be edited" : "Enter sale details"}
+                        title={id ? "Edit Sale" : "Add Sale"}
                     />
                     <form onSubmit={handleSubmit}>
-                        <Card sx={{ width: "97%", margin: "auto", marginTop: "20px", marginBottom: "20px", boxShadow: "none" }}>
-                            <Divider />
-                            <CardContent sx={{ marginTop: "20px" }}>
-                                <Grid container spacing={4}>
-                                    <Grid item md={6} xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Name"
-                                            name="name"
-                                            value={sale.name}
-                                            onChange={handleInputChange}
-                                            required
-                                            variant="outlined"
-                                            error={!!errors.name}
-                                            helperText={errors.name}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <Person />
-                                                    </InputAdornment>
-                                                )
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Address"
-                                            name="address"
-                                            value={sale.address}
-                                            onChange={handleInputChange}
-                                            required
-                                            variant="outlined"
-                                            error={!!errors.address}
-                                            helperText={errors.address}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <Phone />
-                                                    </InputAdornment>
-                                                )
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Date"
-                                            name="date"
-                                            type="date"
-                                            value={moment(sale.date).format('YYYY-MM-DD') || moment().format('YYYY-MM-DD')}
-                                            onChange={handleInputChange}
-                                            required
-                                            variant="outlined"
-                                            error={!!errors.date}
-                                            helperText={errors.date}
-                                            InputLabelProps={{ shrink: true }}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <DateRange />
-                                                    </InputAdornment>
-                                                )
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12}>
-                                        <Autocomplete
-                                            options={items.map(item => item.name)} // Adjust according to your data structure
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label="Item Name"
-                                                    name="itemName"
-                                                    value={sale.itemName}
-                                                    onChange={(e) => handleInputChange({ target: { name: 'itemName', value: e.target.value } })}
-                                                    required
-                                                    variant="outlined"
-                                                    error={!!errors.itemName}
-                                                    helperText={errors.itemName}
-                                                    InputProps={{
-                                                        ...params.InputProps,
-                                                        startAdornment: (
-                                                            <InputAdornment position="start">
-                                                                <PriceCheck />
-                                                            </InputAdornment>
-                                                        )
-                                                    }}
-                                                />
-                                            )}
-                                            onInputChange={(event, newValue) => handleInputChange({ target: { name: 'itemName', value: newValue } })}
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Contact Number"
-                                            name="contactNumber"
-                                            value={sale.contactNumber}
-                                            onChange={handleInputChange}
-                                            required
-                                            variant="outlined"
-                                            error={!!errors.contactNumber}
-                                            helperText={errors.contactNumber}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <Phone />
-                                                    </InputAdornment>
-                                                )
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Amount"
-                                            name="amount"
-                                            type="number"
-                                            value={sale.amount}
-                                            onChange={handleInputChange}
-                                            required
-                                            variant="outlined"
-                                            error={!!errors.amount}
-                                            helperText={errors.amount}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        $
-                                                    </InputAdornment>
-                                                )
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Quantity"
-                                            name="quantity"
-                                            type="number"
-                                            value={sale.quantity}
-                                            onChange={handleInputChange}
-                                            required
-                                            variant="outlined"
-                                            error={!!errors.quantity}
-                                            helperText={errors.quantity}
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12}>
-                                        <FormControl fullWidth variant="outlined">
-                                            <InputLabel>Payment Type</InputLabel>
-                                            <Select
-                                                value={sale.paymentType}
-                                                onChange={handlePaymentTypeChange}
-                                                label="Payment Type"
-                                                required
-                                                error={!!errors.paymentType}
-                                            >
-                                                {paymentTypes.map(type => (
-                                                    <MenuItem key={type} value={type}>
-                                                        {type}
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                        </FormControl>
-                                    </Grid>
-                                    {sale.paymentType === "Bank" && (
-                                        <Grid item md={6} xs={12}>
-                                            <TextField
-                                                fullWidth
-                                                label="Bank Name"
-                                                name="bankName"
-                                                value={sale.bankName}
-                                                onChange={handleInputChange}
-                                                required={sale.paymentType === "Bank"}
-                                                variant="outlined"
-                                                error={!!errors.bankName}
-                                                helperText={errors.bankName}
-                                            />
-                                        </Grid>
-                                    )}
-                                    <Grid item md={6} xs={12}>
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={sale.isShipped}
-                                                    onChange={handleIsShippedChange}
-                                                />
-                                            }
-                                            label="Shipped"
-                                        />
-                                    </Grid>
-                                    {sale.isShipped && (
-                                        <Grid item md={6} xs={12}>
-                                            <TextField
-                                                fullWidth
-                                                label="Tracking ID"
-                                                name="trackingID"
-                                                value={sale.trackingID}
-                                                onChange={handleInputChange}
-                                                variant="outlined"
-                                                error={!!errors.trackingID}
-                                                helperText={errors.trackingID}
-                                            />
-                                        </Grid>
-                                    )}
+                        <CardContent sx={{ marginTop: "20px" }}>
+                            <Grid container spacing={4}>
+                                <Grid item md={6} xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="Name"
+                                        name="name"
+                                        value={sale.name}
+                                        onChange={handleInputChange}
+                                        required
+                                        variant="outlined"
+                                        error={!!errors.name}
+                                        helperText={errors.name}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <Person />
+                                                </InputAdornment>
+                                            )
+                                        }}
+                                    />
                                 </Grid>
-                            </CardContent>
-                            <Divider />
-                            <Box sx={{ display: "flex", justifyContent: "flex-end", padding: "10px" }}>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    type="submit"
-                                    startIcon={isEdit ? <SaveAlt /> : <Save />}
-                                    sx={{ marginRight: "10px" }}
-                                >
-                                    {isEdit ? "Update Sale" : "Add Sale"}
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    color="error"
-                                    onClick={goBack}
-                                    startIcon={<Cancel />}
-                                >
-                                    Cancel
-                                </Button>
-                            </Box>
-                        </Card>
+                                <Grid item md={6} xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="Address"
+                                        name="address"
+                                        value={sale.address}
+                                        onChange={handleInputChange}
+                                        required
+                                        variant="outlined"
+                                        error={!!errors.address}
+                                        helperText={errors.address}
+                                    />
+                                </Grid>
+                                <Grid item md={6} xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="Contact Number"
+                                        name="contactNumber"
+                                        value={sale.contactNumber}
+                                        onChange={handleInputChange}
+                                        required
+                                        variant="outlined"
+                                        error={!!errors.contactNumber}
+                                        helperText={errors.contactNumber}
+                                    />
+                                </Grid>
+                                <Grid item md={6} xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="Date"
+                                        name="date"
+                                        type="date"
+                                        value={moment(sale.date).format("YYYY-MM-DD")}
+                                        onChange={handleInputChange}
+                                        required
+                                        variant="outlined"
+                                        InputLabelProps={{ shrink: true }}
+                                    />
+                                </Grid>
+
+                                <Grid item md={6} xs={12}>
+                                    <Autocomplete
+                                        fullWidth
+                                        options={items}
+                                        getOptionLabel={(option) => option.itemName || ""}
+                                        value={items.find(item => item.itemName === sale.itemName) || null}
+                                        onChange={handleItemSelect}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Item Name"
+                                                variant="outlined"
+                                                error={!!errors.itemName}
+                                                helperText={errors.itemName}
+                                            />
+                                        )}
+                                    />
+                                </Grid>
+                                <Grid item md={6} xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="Unit Price"
+                                        name="unit"
+                                        type={showUnitPrice ? "text" : "password"}
+                                        value={"Rs " + realPrice + ".00"}
+                                        required
+                                        disabled
+                                        variant="outlined"
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton onClick={handleToggleUnitPriceVisibility}>
+                                                        {showUnitPrice ? <VisibilityOff /> : <Visibility />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            )
+                                        }}
+                                    />
+                                </Grid>
+
+                                <Grid item md={6} xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="Selling Price"
+                                        name="amount"
+                                        type='number'
+                                        value={sale.amount}
+                                        onChange={handleInputChange}
+                                        required
+                                        variant="outlined"
+                                        error={!!errors.amount}
+                                        helperText={errors.amount}
+                                    />
+                                </Grid>
+
+                                <Grid item md={6} xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="Quantity"
+                                        name="quantity"
+                                        type="number"
+                                        value={sale.quantity}
+                                        onChange={handleInputChange}
+                                        required
+                                        variant="outlined"
+                                        error={!!errors.quantity}
+                                        helperText={errors.quantity}
+                                    />
+                                </Grid>
+
+                                <Grid item md={6} xs={12}>
+                                    <FormControl fullWidth required variant="outlined">
+                                        <InputLabel>Payment Type</InputLabel>
+                                        <Select
+                                            name="paymentType"
+                                            value={sale.paymentType}
+                                            onChange={handleInputChange}
+                                            label="Payment Type"
+                                        >
+                                            {paymentTypes.map((type) => (
+                                                <MenuItem key={type} value={type}>
+                                                    {type}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+
+                        {/* Billing Information */}
+                        <CardContent sx={{ marginTop: "20px", backgroundColor: "#f5f5f5" }}>
+                            <Typography variant="h6">Billing Information</Typography>
+                            <Divider sx={{ marginBottom: "10px" }} />
+                            <Grid container spacing={4}>
+                                <Grid item xs={12} md={6}>
+                                    <Typography variant="body1">Unit Price: Rs {sale.amount}.00</Typography>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <Typography variant="body1">Quantity: {sale.quantity}.00</Typography>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                                        Total Amount: Rs {totalAmount}.00
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+
+                        <Box sx={{ display: "flex", justifyContent: "flex-end", p: 2 }}>
+                            <Button
+                                color="primary"
+                                variant="text"
+                                onClick={goBack}
+                                startIcon={<ArrowBack />}
+                                sx={{ marginRight: "10px" }}
+                            >
+                                Back
+                            </Button>
+                            <Button
+                                color="secondary"
+                                variant="contained"
+                                onClick={() => navigate(-1)}
+                                startIcon={<Cancel />}
+                                sx={{ marginRight: "10px" }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                color="primary"
+                                type="submit"
+                                variant="contained"
+                                startIcon={id ? <SaveAlt /> : <Save />}
+                            >
+                                {id ? "Update" : "Save"}
+                            </Button>
+                        </Box>
                     </form>
                 </Card>
-                <ToastContainer />
             </div>
         </ThemeProvider>
     );

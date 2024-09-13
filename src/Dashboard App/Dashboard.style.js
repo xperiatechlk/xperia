@@ -9,6 +9,7 @@ const DashboardStyle = makeStyles((theme) => ({
         alignItems: 'center',
         width: '96%',
         height: '100%',
+        marginTop: '20px',
         padding: '20px 0 0 20px ',
     },
     row: {

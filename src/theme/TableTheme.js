@@ -44,31 +44,48 @@ const tableTheme = createTheme({
     components: {
         MuiTable: {
             styleOverrides: {
-                root: {   
+                root: {
                     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.25)',
-                    borderCollapse: 'separate', 
-                }, 
-            },  
+                    borderCollapse: 'separate',
+                    width: '100%',
+                    borderTop: '1px solid #7058c6',
+                    maxWidth: '100%',
+                    overflowX: 'auto',
+                    tableLayout: 'fixed',   
+                    height: '700px', 
+                },
+            },
         },
         MuiTableCell: {
             styleOverrides: {
                 root: { 
-                    borderBottom: '1px solid #E0E0E0', 
+                    padding: '5px 10px',
+                    borderBottom: '1px solid #E0E0E0',
                 },
                 head: {
                     fontWeight: 'bold',
-                    color: '#7058c6',  
+                    color: '#7058c6', 
+                    padding: '8px',
+                    backgroundColor: '#E2DEF4',
                 },
                 body: {
                     color: '#333',
+                    lineHeight: 1.5,
+                    padding: '8px',
+                    height: '48px',  // Ensure height remains fixed
                 },
             },
         },
-        MuiMenuItem: {
+        MuiTableRow: {
             styleOverrides: {
                 root: {
+                    height: '48px',  // Fixed height for rows
+                    backgroundColor: '#E2DEF4', 
+                    '&:nth-of-type(odd)': {
+                        backgroundColor: '#E2DEF4',  // Alternate row color
+                    },
                     '&:hover': {
-                        backgroundColor: '#F3F3F3',
+                        backgroundColor: '#E2DEF4',  // Hover color
                     },
                 },
             },
@@ -83,30 +100,32 @@ const tableTheme = createTheme({
                 },
             },
         },
-        MuiTableRow: {
+        MuiPagination: {
             styleOverrides: {
                 root: {
-                    '&:nth-of-type(odd)': {
-                        backgroundColor: '#F3F3F3',
-                    },
-                    '&.MuiTableHeadRow-root': {
-                        backgroundColor: '#D9D9D9',
-                    },
-                    '&:last-child td, &:last-child th': {
-                        border: 0,
-                    },
+                    borderRadius: '4px',
+                    backgroundColor: '#E2DEF4',
+                },
+                item: {
+                    color: '#7058c6',
                     '&:hover': {
-                        backgroundColor: '#F0F0F0',
+                        backgroundColor: '#D0D0D0',
+                    },
+                },
+                page: {
+                    '&.Mui-selected': {
+                        backgroundColor: '#7058c6',
+                        color: '#FFFFFF',
                     },
                 },
             },
         },
-        MuiPaper:{
-            styleOverrides:{
-                root:{
-                    backgroundColor: '#F5F5F5', 
-                }
-            }
+        MuiPaper: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: '#E2DEF4',
+                },
+            },
         },
         MuiButton: {
             styleOverrides: {
@@ -133,7 +152,7 @@ const tableTheme = createTheme({
                     },
                 },
             },
-        }, 
+        },
     },
 });
 

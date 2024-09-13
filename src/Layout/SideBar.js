@@ -54,7 +54,7 @@ const SideBar = () => {
             width: 230,
             height: '100vh',
             top: '0px',
-            backgroundColor: theme.palette.primary.light,
+            backgroundColor: '#E2DEF4',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'start',
@@ -68,7 +68,7 @@ const SideBar = () => {
                 alignItems: 'center',
                 height: '71px',
                 marginBottom: '10px',
-                backgroundColor: '#d0f2f2',
+                backgroundColor: '#E2DEF4',
             }} >
                 <img src={Logo} height={'180px'} width={'220px'} />
 
