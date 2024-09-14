@@ -4,12 +4,14 @@ import {
     createMRTColumnHelper,
     useMaterialReactTable,
 } from 'material-react-table';
-import { Box, Button, Card, MenuItem, ThemeProvider, Typography, Input } from '@mui/material'; // Add `Input` for file selection
+import { Box, Button, Card, MenuItem, ThemeProvider, Typography, Input, IconButton } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile'; // Icon for bulk upload
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'; // Icons for show/hide
 import tableTheme from "../theme/TableTheme";
 import theme from "../theme/Theme";
 import { useNavigate } from "react-router-dom";
@@ -21,51 +23,11 @@ import 'react-confirm-alert/src/react-confirm-alert.css';
 import { API_URL } from "../Constent/Constent";
 
 const columnHelper = createMRTColumnHelper();
-const columns = [
-    columnHelper.accessor("itemName", {
-        header: "Name",
-        size: 120,
-    }),
-    columnHelper.accessor("category", {
-        header: "Category",
-        size: 120,
-    }),
-    columnHelper.accessor("quantity", {
-        header: "Quantity",
-        size: 100,
-        Cell: ({ cell }) => {
-            return (
-                <div style={{ color: cell.getValue() < 5 && '#ff0000' }}>{cell.getValue()}</div>
-            );
-        },
-    }),
-    columnHelper.accessor("unitPrice", {
-        header: "Unit Price",
-        size: 100,
-        Cell: ({ cell }) => {
-            return (
-                <div>Rs. {cell.getValue()}.00</div>
-            );
-        },
-    }),
-    columnHelper.accessor("sellingPrice", {
-        header: "Selling Price",
-        size: 120,
-        Cell: ({ cell }) => {
-            return (
-                <div>Rs. {cell.getValue()}.00</div>
-            );
-        },
-    }),
-    columnHelper.accessor("description", {
-        header: "Description",
-        size: 200,
-    }),
-];
 
 const ItemList = () => {
     const [data, setData] = useState([]);
     const [bulkFile, setBulkFile] = useState(null); // Store the file for bulk insert
+    const [priceVisibility, setPriceVisibility] = useState([]); // Track unit price visibility for each row
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -73,6 +35,7 @@ const ItemList = () => {
             try {
                 const response = await axios.get(API_URL + "/items");
                 setData(response.data);
+                setPriceVisibility(response.data.map(() => false)); // Set initial visibility to false for all rows
                 console.log(response.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -81,6 +44,12 @@ const ItemList = () => {
         };
         fetchData();
     }, []);
+
+    const handleTogglePriceVisibility = (index) => {
+        const newVisibility = [...priceVisibility];
+        newVisibility[index] = !newVisibility[index]; // Toggle the visibility of the specific row
+        setPriceVisibility(newVisibility);
+    };
 
     const handleExportRows = (rows) => {
         const doc = new jsPDF();
@@ -160,6 +129,59 @@ const ItemList = () => {
             console.error("Bulk insert error:", error);
         }
     };
+
+    const columns = [
+        columnHelper.accessor("itemName", {
+            header: "Name",
+            size: 120,
+        }),
+        columnHelper.accessor("category", {
+            header: "Category",
+            size: 120,
+        }),
+        columnHelper.accessor("quantity", {
+            header: "Quantity",
+            size: 100,
+            Cell: ({ cell }) => {
+                return (
+                    <div style={{ color: cell.getValue() < 5 && '#ff0000' }}>{cell.getValue()}</div>
+                );
+            },
+        }),
+        columnHelper.accessor("unitPrice", {
+            header: "Unit Price",
+            size: 150,
+            Cell: ({ cell, row }) => {
+                const index = row.index; // Get row index for visibility tracking
+                const price = cell.getValue();
+                return (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <span>{priceVisibility[index] ? `Rs. ${price}.00` : '****'}</span>
+                        <IconButton
+                            onClick={() => handleTogglePriceVisibility(index)}
+                            size="small"
+                            sx={{ marginLeft: '8px' }}
+                        >
+                            {priceVisibility[index] ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                        </IconButton>
+                    </Box>
+                );
+            },
+        }),
+        columnHelper.accessor("sellingPrice", {
+            header: "Selling Price",
+            size: 120,
+            Cell: ({ cell }) => {
+                return (
+                    <div>Rs. {cell.getValue()}.00</div>
+                );
+            },
+        }),
+        columnHelper.accessor("description", {
+            header: "Description",
+            size: 200,
+        }),
+    ];
 
     const table = useMaterialReactTable({
         columns,
