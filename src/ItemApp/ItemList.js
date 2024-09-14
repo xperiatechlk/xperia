@@ -4,11 +4,12 @@ import {
     createMRTColumnHelper,
     useMaterialReactTable,
 } from 'material-react-table';
-import { Box, Button, Card, MenuItem, ThemeProvider, Typography } from '@mui/material';
+import { Box, Button, Card, MenuItem, ThemeProvider, Typography, Input } from '@mui/material'; // Add `Input` for file selection
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import AddIcon from '@mui/icons-material/Add';
+import UploadFileIcon from '@mui/icons-material/UploadFile'; // Icon for bulk upload
 import tableTheme from "../theme/TableTheme";
 import theme from "../theme/Theme";
 import { useNavigate } from "react-router-dom";
@@ -64,12 +65,13 @@ const columns = [
 
 const ItemList = () => {
     const [data, setData] = useState([]);
+    const [bulkFile, setBulkFile] = useState(null); // Store the file for bulk insert
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(API_URL +"/items");
+                const response = await axios.get(API_URL + "/items");
                 setData(response.data);
                 console.log(response.data);
             } catch (error) {
@@ -112,7 +114,7 @@ const ItemList = () => {
                     label: 'Yes',
                     onClick: async () => {
                         try {
-                            await axios.delete(API_URL +`/items/${id}`);
+                            await axios.delete(API_URL + `/items/${id}`);
                             toast.success("Item deleted successfully");
                             setData(prevData => prevData.filter(item => item._id !== id));
                         } catch (error) {
@@ -127,6 +129,36 @@ const ItemList = () => {
                 }
             ]
         });
+    };
+
+    const handleBulkFileChange = (event) => {
+        setBulkFile(event.target.files[0]);
+    };
+
+    const handleBulkInsert = async () => {
+        if (!bulkFile) {
+            toast.error("Please select a file for bulk insert.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", bulkFile);
+
+        try {
+            await axios.post(API_URL + "/items/bulk", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            toast.success("Bulk insert successful!");
+            // Fetch updated data after bulk insert
+            const response = await axios.get(API_URL + "/items");
+            setData(response.data);
+        } catch (error) {
+            toast.error("Bulk insert failed.");
+            console.error("Bulk insert error:", error);
+        }
     };
 
     const table = useMaterialReactTable({
@@ -219,18 +251,45 @@ const ItemList = () => {
                     </Typography>
 
                     <ThemeProvider theme={theme}>
-                        <Button
-                            onClick={() => handleAddNew()}
-                            startIcon={<AddIcon />}
-                        >
-                            Add New
-                        </Button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Button
+                                onClick={() => handleAddNew()}
+                                startIcon={<AddIcon />}
+                            >
+                                Add New
+                            </Button>
+
+                            {/* Bulk Insert Button */}
+                            <Input
+                                type="file"
+                                onChange={handleBulkFileChange}
+                                sx={{ display: 'none' }}
+                                id="bulk-insert-file"
+                            />
+                            <label htmlFor="bulk-insert-file">
+                                <Button
+                                    component="span"
+                                    startIcon={<UploadFileIcon />}
+                                >
+                                    Bulk Insert
+                                </Button>
+                            </label>
+                            <Button
+                                onClick={handleBulkInsert}
+                                startIcon={<UploadFileIcon />}
+                                color="primary"
+                                variant="contained"
+                            >
+                                Submit Bulk Insert
+                            </Button>
+                        </div>
                     </ThemeProvider>
                 </div>
                 <ThemeProvider theme={tableTheme}>
                     <MaterialReactTable table={table} />
                 </ThemeProvider>
             </Card>
+            <ToastContainer />
         </div>
     );
 };
