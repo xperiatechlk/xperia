@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { AccountCircle, DevicesOther, HomeRepairService, MonetizationOn, MoneyOffCsred, Person3 } from '@mui/icons-material';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import { toast } from 'react-toastify';
 
 const SideBar = () => {
     const user = JSON.parse(localStorage.getItem('staff'))
@@ -61,7 +62,7 @@ const SideBar = () => {
                 {
                     label: 'cancle',
                     onClick: () => {
-                        toast.info('Logout canceled') 
+                        
                     }
                 }
             ]
