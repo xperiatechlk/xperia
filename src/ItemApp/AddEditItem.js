@@ -55,7 +55,7 @@ const AddEditItem = () => {
 
     const fetchItemDetails = async () => {
         try {
-            const response = await axios.get(API_URL +`/items/${id}`);
+            const response = await axios.get(API_URL + `/items/${id}`);
             setItem(response.data);
             setIsEdit(true);
         } catch (error) {
@@ -119,7 +119,7 @@ const AddEditItem = () => {
 
         try {
             if (isEdit) {
-                await axios.put(API_URL +`/items/${id}`, item);
+                await axios.put(API_URL + `/items/${id}`, item);
                 toast.success("Item updated successfully");
             } else {
                 await axios.post("http://localhost:8070/api/items", item);
@@ -168,119 +168,129 @@ const AddEditItem = () => {
                             <CardContent sx={{ marginTop: "20px" }}>
                                 <Grid container spacing={4}>
                                     <Grid item md={6} xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Item Name"
-                                            name="itemName"
-                                            value={item.itemName}
-                                            onChange={handleInputChange}
-                                            required
-                                            variant="outlined"
-                                            error={!!errors.itemName}
-                                            helperText={errors.itemName}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <Description />
-                                                    </InputAdornment>
-                                                ),
-                                            }}
-                                        />
+                                        <Grid container spacing={4}>
+                                            <Grid item md={12} xs={12}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Item Name"
+                                                    name="itemName"
+                                                    value={item.itemName}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    variant="outlined"
+                                                    error={!!errors.itemName}
+                                                    helperText={errors.itemName}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <Description />
+                                                            </InputAdornment>
+                                                        ),
+                                                    }}
+                                                />
+                                            </Grid>
+
+                                            <Grid item md={12} xs={12}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Quantity"
+                                                    name="quantity"
+                                                    type="number"
+                                                    value={item.quantity}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    variant="outlined"
+                                                    error={!!errors.quantity}
+                                                    helperText={errors.quantity}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <Inventory />
+                                                            </InputAdornment>
+                                                        ),
+                                                    }}
+                                                />
+                                            </Grid>
+                                            <Grid item md={12} xs={12}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Unit Price"
+                                                    name="unitPrice"
+                                                    type="number"
+                                                    value={item.unitPrice}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    variant="outlined"
+                                                    error={!!errors.unitPrice}
+                                                    helperText={errors.unitPrice}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <PriceCheck />
+                                                            </InputAdornment>
+                                                        ),
+                                                    }}
+                                                />
+                                            </Grid>
+                                            <Grid item md={12} xs={12}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Selling Price"
+                                                    name="sellingPrice"
+                                                    type="number"
+                                                    value={item.sellingPrice}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    variant="outlined"
+                                                    error={!!errors.sellingPrice}
+                                                    helperText={errors.sellingPrice}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <PriceCheck />
+                                                            </InputAdornment>
+                                                        ),
+                                                    }}
+                                                />
+                                            </Grid>
+                                        </Grid>
                                     </Grid>
+
                                     <Grid item md={6} xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Category"
-                                            name="category"
-                                            value={item.category}
-                                            onChange={handleInputChange}
-                                            required
-                                            variant="outlined"
-                                            error={!!errors.category}
-                                            helperText={errors.category}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <Category />
-                                                    </InputAdornment>
-                                                ),
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Quantity"
-                                            name="quantity"
-                                            type="number"
-                                            value={item.quantity}
-                                            onChange={handleInputChange}
-                                            required
-                                            variant="outlined"
-                                            error={!!errors.quantity}
-                                            helperText={errors.quantity}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <Inventory />
-                                                    </InputAdornment>
-                                                ),
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Unit Price"
-                                            name="unitPrice"
-                                            type="number"
-                                            value={item.unitPrice}
-                                            onChange={handleInputChange}
-                                            required
-                                            variant="outlined"
-                                            error={!!errors.unitPrice}
-                                            helperText={errors.unitPrice}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <PriceCheck />
-                                                    </InputAdornment>
-                                                ),
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Selling Price"
-                                            name="sellingPrice"
-                                            type="number"
-                                            value={item.sellingPrice}
-                                            onChange={handleInputChange}
-                                            required
-                                            variant="outlined"
-                                            error={!!errors.sellingPrice}
-                                            helperText={errors.sellingPrice}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <PriceCheck />
-                                                    </InputAdornment>
-                                                ),
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Description"
-                                            name="description"
-                                            value={item.description}
-                                            onChange={handleInputChange}
-                                            variant="outlined"
-                                            multiline
-                                            rows={4}
-                                        />
+                                        <Grid container spacing={4}>
+                                            <Grid item md={12} xs={12}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Category"
+                                                    name="category"
+                                                    value={item.category}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    variant="outlined"
+                                                    error={!!errors.category}
+                                                    helperText={errors.category}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <Category />
+                                                            </InputAdornment>
+                                                        ),
+                                                    }}
+                                                />
+                                            </Grid>
+                                            <Grid item md={12} xs={12}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Description"
+                                                    name="description"
+                                                    value={item.description}
+                                                    onChange={handleInputChange}
+                                                    variant="outlined"
+                                                    multiline
+                                                    rows={4.8}
+                                                />
+                                            </Grid>
+                                        </Grid>
                                     </Grid>
                                 </Grid>
                             </CardContent>

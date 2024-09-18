@@ -29,7 +29,7 @@ const NavItem = (props) => {
                 fontSize:'14px',
                 transition: 'all 0.3s ease-in-out',
                 '&:hover': {
-                    backgroundColor: location.pathname == path && theme.palette.primary.dark,
+                    backgroundColor: location.pathname == path && '#7058C6',
                 }
             }} >
             <Icon sx={{

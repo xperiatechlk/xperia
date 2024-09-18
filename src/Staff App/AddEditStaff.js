@@ -429,7 +429,7 @@ const AddEditStaff = () => {
                                             }}
                                         />
                                     </Grid>
-                                    <Grid item md={6} xs={12}>
+                                    <Grid item md={6} xs={12} sx={{marginTop:'-20px'}}>
                                         <label style={{ marginBottom: '10px' }}>Role</label>
                                         <FormControl fullWidth required variant="outlined">
                                             <Select

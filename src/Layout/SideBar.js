@@ -9,7 +9,9 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import Logo from '../assets/logo.png';
 import theme from '../theme/Theme';
 import { useNavigate } from 'react-router-dom';
-import { HomeRepairService, MoneyOffCsred, Person3 } from '@mui/icons-material';
+import { DevicesOther, HomeRepairService, MonetizationOn, MoneyOffCsred, Person3 } from '@mui/icons-material';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const SideBar = () => {
     const user = JSON.parse(localStorage.getItem('staff'))
@@ -44,9 +46,26 @@ const SideBar = () => {
         };
     }
     const logOut = () => {
-        localStorage.clear()
-        navigate('/login')
-        window.location.reload()
+        confirmAlert({
+            title: 'Xperia Technology',
+            message: "Are you sure you want to log out?",
+            buttons: [
+                {
+                    label: 'Logout',
+                    onClick: () => { 
+                        localStorage.clear()
+                        navigate('/login')
+                        window.location.reload()
+                    }
+                },
+                {
+                    label: 'cancle',
+                    onClick: () => {
+                        toast.info('Logout canceled') 
+                    }
+                }
+            ]
+        });
     }
     return (
         <Box sx={{
@@ -96,10 +115,10 @@ const SideBar = () => {
             </Button>
 
             <NavItem name="Dashboard" path="/" icon={<DashboardIcon />} />
-            <NavItem name="Items" path="/item" icon={<ConfirmationNumberIcon />} />
+            <NavItem name="Items" path="/item" icon={<DevicesOther />} />
             <NavItem name="Repairs" path="/repair" icon={<HomeRepairService />} />
             <NavItem name="Staff" path="/staff" icon={<Person3 />} />
-            <NavItem name="Sales" path="/sales" icon={<MoneyOffCsred />} />
+            <NavItem name="Sales" path="/sales" icon={<MonetizationOn />} />
             <Button
                 variant='text'
                 sx={{

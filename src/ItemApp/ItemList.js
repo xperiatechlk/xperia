@@ -29,6 +29,7 @@ const ItemList = () => {
     const [bulkFile, setBulkFile] = useState(null); // Store the file for bulk insert
     const [priceVisibility, setPriceVisibility] = useState([]); // Track unit price visibility for each row
     const navigate = useNavigate();
+    const user = JSON.parse(localStorage.getItem("staff"));
 
     useEffect(() => {
         const fetchData = async () => {
@@ -152,19 +153,24 @@ const ItemList = () => {
             header: "Unit Price",
             size: 150,
             Cell: ({ cell, row }) => {
-                const index = row.index; // Get row index for visibility tracking
+                const index = row.index;  
                 const price = cell.getValue();
+                const isAdmin = user?.role === 'admin';
                 return (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <span>{priceVisibility[index] ? `Rs. ${price}.00` : '****'}</span>
-                        <IconButton
-                            onClick={() => handleTogglePriceVisibility(index)}
-                            size="small"
-                            sx={{ marginLeft: '8px' }}
-                        >
-                            {priceVisibility[index] ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                        </IconButton>
-                    </Box>
+                    isAdmin ? (
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <span>{priceVisibility[index] ? `Rs. ${price}.00` : '****'}</span>
+                            <IconButton
+                                onClick={() => handleTogglePriceVisibility(index)}
+                                size="small"
+                                sx={{ marginLeft: '8px' }}
+                            >
+                                {priceVisibility[index] ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                            </IconButton>
+                        </Box>
+                    ) : (
+                        <div>******</div>
+                    )
                 );
             },
         }),
