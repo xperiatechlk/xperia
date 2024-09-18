@@ -159,7 +159,7 @@ const ItemList = () => {
                 return (
                     isAdmin ? (
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <span>{priceVisibility[index] ? `Rs. ${price}.00` : '****'}</span>
+                            <span>{priceVisibility[index] ? `Rs. ${price}.00` : '******'}</span>
                             <IconButton
                                 onClick={() => handleTogglePriceVisibility(index)}
                                 size="small"
@@ -306,7 +306,7 @@ const ItemList = () => {
                                 onClick={handleBulkInsert}
                                 startIcon={<UploadFileIcon />}
                                 color="primary"
-                                variant="contained"
+                                variant="outlined"
                             >
                                 Submit Bulk Insert
                             </Button>

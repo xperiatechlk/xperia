@@ -26,15 +26,15 @@ const NavItem = (props) => {
                 alignItems: 'center',
                 marginTop: '10px',
                 marginBottom: '10px',
-                fontSize:'14px',
+                fontSize:'16px',
                 transition: 'all 0.3s ease-in-out',
                 '&:hover': {
                     backgroundColor: location.pathname == path && '#7058C6',
                 }
             }} >
             <Icon sx={{
-                width: '24px',
-                height: '24px',
+                width: '30px',
+                height: '30px',
                 marginRight: '18px',
                 marginBottom: '10px',
             }} >

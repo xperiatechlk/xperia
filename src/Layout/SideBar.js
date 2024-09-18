@@ -9,7 +9,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import Logo from '../assets/logo.png';
 import theme from '../theme/Theme';
 import { useNavigate } from 'react-router-dom';
-import { DevicesOther, HomeRepairService, MonetizationOn, MoneyOffCsred, Person3 } from '@mui/icons-material';
+import { AccountCircle, DevicesOther, HomeRepairService, MonetizationOn, MoneyOffCsred, Person3 } from '@mui/icons-material';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
@@ -117,7 +117,7 @@ const SideBar = () => {
             <NavItem name="Dashboard" path="/" icon={<DashboardIcon />} />
             <NavItem name="Items" path="/item" icon={<DevicesOther />} />
             <NavItem name="Repairs" path="/repair" icon={<HomeRepairService />} />
-            <NavItem name="Staff" path="/staff" icon={<Person3 />} />
+            {user?.role === 'admin' &&  <NavItem name="Staff" path="/staff" icon={<AccountCircle />} />}
             <NavItem name="Sales" path="/sales" icon={<MonetizationOn />} />
             <Button
                 variant='text'
