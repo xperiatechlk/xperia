@@ -117,8 +117,8 @@ const SideBar = () => {
             <NavItem name="Dashboard" path="/" icon={<DashboardIcon />} />
             <NavItem name="Items" path="/item" icon={<DevicesOther />} />
             <NavItem name="Repairs" path="/repair" icon={<HomeRepairService />} />
-            {user?.role === 'admin' &&  <NavItem name="Staff" path="/staff" icon={<AccountCircle />} />}
             <NavItem name="Sales" path="/sales" icon={<MonetizationOn />} />
+            {user?.role === 'admin' &&  <NavItem name="Staff" path="/staff" icon={<AccountCircle />} />}
             <Button
                 variant='text'
                 sx={{
